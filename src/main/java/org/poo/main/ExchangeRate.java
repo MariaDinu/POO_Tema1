@@ -7,18 +7,27 @@ public class ExchangeRate {
     private String to;
     private double rate;
 
-    public ExchangeRate(ExchangeInput exchangeRate) {
+    public ExchangeRate(final ExchangeInput exchangeRate) {
         from = exchangeRate.getFrom();
         to = exchangeRate.getTo();
         rate = exchangeRate.getRate();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String toString() {
-        return "ExchangeRate{" +
-                "from='" + from + '\'' +
-                ", to='" + to + '\'' +
-                ", rate=" + rate +
-                '}';
+        return "ExchangeRate{"
+                + "from='"
+                + from
+                + '\''
+                + ", to='"
+                + to
+                + '\''
+                + ", rate="
+                + rate
+                + '}';
     }
 }

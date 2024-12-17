@@ -18,7 +18,7 @@ public class User {
     private List<Account> accounts;
     private ArrayNode transactionHistory;
 
-    public User(UserInput user) {
+    public User(final UserInput user) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         firstName = user.getFirstName();
@@ -28,6 +28,10 @@ public class User {
         transactionHistory = objectMapper.createArrayNode();
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayNode buildJsonAccounts() {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -47,7 +51,11 @@ public class User {
         return accountsArray;
     }
 
-    public void addNewAccountTransaction(CommandInput command) {
+    /**
+     *
+     * @param command
+     */
+    public void addNewAccountTransaction(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newAccountNode = mapper.createObjectNode();
@@ -57,7 +65,12 @@ public class User {
         transactionHistory.add(newAccountNode);
     }
 
-    public void addNewCardTransaction(CommandInput command, Card card) {
+    /**
+     *
+     * @param command
+     * @param card
+     */
+    public void addNewCardTransaction(final CommandInput command, final Card card) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newCardNode = mapper.createObjectNode();
@@ -70,45 +83,88 @@ public class User {
         transactionHistory.add(newCardNode);
     }
 
+    /**
+     *
+     * @return
+     */
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    /**
+     *
+     * @param firstName
+     */
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    /**
+     *
+     * @param lastName
+     */
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    /**
+     *
+     * @param email
+     */
+    public void setEmail(final String email) {
         this.email = email;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Account> getAccounts() {
         return accounts;
     }
 
-    public void setAccounts(List<Account> accounts) {
+    /**
+     *
+     * @param accounts
+     */
+    public void setAccounts(final List<Account> accounts) {
         this.accounts = accounts;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String toString() {
-        return "User{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", accounts=" + accounts +
-                '}';
+        return "User{"
+                + "firstName='"
+                + firstName
+                + '\''
+                + ", lastName='"
+                + lastName
+                + '\''
+                + ", email='"
+                + email
+                + '\''
+                + ", accounts="
+                + accounts
+                + '}';
     }
 }

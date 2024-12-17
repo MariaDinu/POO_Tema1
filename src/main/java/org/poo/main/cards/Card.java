@@ -15,39 +15,79 @@ public abstract class Card {
         warning = false;
     }
 
+    /**
+     *
+     * @param statement
+     */
     public abstract void setHasPayed(boolean statement);
 
+    /**
+     *
+     * @return
+     */
     public abstract boolean getHasPayed();
 
+    /**
+     *
+     * @return
+     */
     public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    /**
+     *
+     * @param status
+     */
+    public void setStatus(final String status) {
         this.status = status;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getNumber() {
         return number;
     }
 
-    public void setNumber(String number) {
+    /**
+     *
+     * @param number
+     */
+    public void setNumber(final String number) {
         this.number = number;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isFrozen() {
         return frozen;
     }
 
-    public void setFrozen(boolean frozen) {
+    /**
+     *
+     * @param frozen
+     */
+    public void setFrozen(final boolean frozen) {
         this.frozen = frozen;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isWarning() {
         return warning;
     }
 
-    public void setWarning(boolean warning) {
+    /**
+     *
+     * @param warning
+     */
+    public void setWarning(final boolean warning) {
         this.warning = warning;
     }
 }

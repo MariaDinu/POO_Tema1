@@ -18,7 +18,6 @@ public class Account {
     private double minBalance;
     private String alias;
     private String type;
-    private ArrayNode transactionHistory;
 
     public static class Builder {
         private String currency;
@@ -30,7 +29,7 @@ public class Account {
         private String alias = "";
         private String type;
 
-        public Builder(String currency, String type) {
+        public Builder(final String currency, final String type) {
             this.currency = currency;
             accountIBAN = Utils.generateIBAN();
             balance = 0;
@@ -38,27 +37,46 @@ public class Account {
             this.type = type;
         }
 
-        public Builder setInterestRate(double interestRate) {
+        /**
+         *
+         * @param interestRate
+         * @return
+         */
+        public Builder setInterestRate(final double interestRate) {
             this.interestRate = interestRate;
             return this;
         }
 
-        public Builder setMinBalance(double minBalance) {
+        /**
+         *
+         * @param minBalance
+         * @return
+         */
+        public Builder setMinBalance(final double minBalance) {
             this.minBalance = minBalance;
             return this;
         }
 
-        public Builder setAlias(String alias) {
+        /**
+         *
+         * @param alias
+         * @return
+         */
+        public Builder setAlias(final String alias) {
             this.alias = alias;
             return this;
         }
 
+        /**
+         *
+         * @return
+         */
         public Account build() {
             return new Account(this);
         }
     }
 
-    private Account(Builder builder) {
+    private Account(final Builder builder) {
         this.currency = builder.currency;
         this.interestRate = builder.interestRate;
         this.accountIBAN = builder.accountIBAN;
@@ -69,6 +87,10 @@ public class Account {
         this.type = builder.type;
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayNode buildJsonCards() {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -85,90 +107,161 @@ public class Account {
         return cardsArray;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCurrency() {
         return currency;
     }
 
-    public void setCurrency(String currency) {
+    /**
+     *
+     * @param currency
+     */
+    public void setCurrency(final String currency) {
         this.currency = currency;
     }
 
+    /**
+     *
+     * @return
+     */
     public double getInterestRate() {
         return interestRate;
     }
 
-    public void setInterestRate(double interestRate) {
+    /**
+     *
+     * @param interestRate
+     */
+    public void setInterestRate(final double interestRate) {
         this.interestRate = interestRate;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getAccountIBAN() {
         return accountIBAN;
     }
 
-    public void setAccountIBAN(String accountIBAN) {
+    /**
+     *
+     * @param accountIBAN
+     */
+    public void setAccountIBAN(final String accountIBAN) {
         this.accountIBAN = accountIBAN;
     }
 
+    /**
+     *
+     * @return
+     */
     public double getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    /**
+     *
+     * @param balance
+     */
+    public void setBalance(final double balance) {
         this.balance = balance;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Card> getCards() {
         return cards;
     }
 
-    public void setCards(List<Card> cards) {
+    /**
+     *
+     * @param cards
+     */
+    public void setCards(final List<Card> cards) {
         this.cards = cards;
     }
 
+    /**
+     *
+     * @return
+     */
     public double getMinBalance() {
         return minBalance;
     }
 
-    public void setMinBalance(double minBalance) {
+    /**
+     *
+     * @param minBalance
+     */
+    public void setMinBalance(final double minBalance) {
         this.minBalance = minBalance;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getAlias() {
         return alias;
     }
 
-    public void setAlias(String alias) {
+    /**
+     *
+     * @param alias
+     */
+    public void setAlias(final String alias) {
         this.alias = alias;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    /**
+     *
+     * @param type
+     */
+    public void setType(final String type) {
         this.type = type;
     }
 
-    public ArrayNode getTransactionHistory() {
-        return transactionHistory;
-    }
-
-    public void setTransactionHistory(ArrayNode transactionHistory) {
-        this.transactionHistory = transactionHistory;
-    }
-
+    /**
+     *
+     * @return
+     */
     @Override
     public String toString() {
-        return "Account{" +
-                "currency='" + currency + '\'' +
-                ", interestRate=" + interestRate +
-                ", accountIBAN='" + accountIBAN + '\'' +
-                ", balance=" + balance +
-                ", cards=" + cards +
-                ", minBalance=" + minBalance +
-                ", alias='" + alias + '\'' +
-                ", type='" + type + '\'' +
-                ", transactionHistory=" + transactionHistory +
-                '}';
+        return "Account{"
+                + "currency='"
+                + currency
+                + '\''
+                + ", interestRate="
+                + interestRate
+                + ", accountIBAN='"
+                + accountIBAN
+                + '\''
+                + ", balance="
+                + balance
+                + ", cards="
+                + cards
+                + ", minBalance="
+                + minBalance
+                + ", alias='"
+                + alias
+                + '\''
+                + ", type='"
+                + type
+                + '\''
+                + '}';
     }
 }

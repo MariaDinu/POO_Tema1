@@ -8,9 +8,17 @@ public class ClassicCard extends Card {
         super();
     }
 
+    /**
+     *
+     * @param statement
+     */
     @Override
-    public void setHasPayed(boolean statement) {}
+    public void setHasPayed(final boolean statement) { }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public boolean getHasPayed() {
         return false;

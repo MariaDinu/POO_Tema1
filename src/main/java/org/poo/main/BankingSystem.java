@@ -15,8 +15,8 @@ import java.util.List;
 
 public class BankingSystem {
     private static BankingSystem instance = null;
-    List<User> users;
-    List<ExchangeRate> exchangeRates;
+    private List<User> users;
+    private List<ExchangeRate> exchangeRates;
     //int timestamp;
 
     public BankingSystem() {
@@ -35,7 +35,12 @@ public class BankingSystem {
         return instance;
     }
 
-    public void doCommands(CommandInput[] commands, ArrayNode output) {
+    /**
+     *
+     * @param commands
+     * @param output
+     */
+    public void doCommands(final CommandInput[] commands, final ArrayNode output) {
         ObjectMapper mapper = new ObjectMapper();
 
         for (CommandInput command : commands) {
@@ -109,7 +114,12 @@ public class BankingSystem {
         }
     }
 
-    private void createCard(String type, CommandInput command) {
+    /**
+     *
+     * @param type
+     * @param command
+     */
+    private void createCard(final String type, final CommandInput command) {
         if (!command.getEmail().equals(findUserOfAccount(command.getAccount()).getEmail())) {
             //TREBUIE SA SEMNALEZI IN TRANSACTIONHISTORY
         } else {
@@ -121,23 +131,35 @@ public class BankingSystem {
             user.addNewCardTransaction(command, card);
         }
     }
-    private void addFunds(String accountIBAN, double amount) {
+
+    /**
+     *
+     * @param accountIBAN
+     * @param amount
+     */
+    private void addFunds(final String accountIBAN, final double amount) {
         Account account = findAccount(accountIBAN);
 
         //DELETE THIS AT THE END
-        if (account == null)
+        if (account == null) {
             System.out.println("Nu gasesc accountu frate");
+        }
         //DELETE THIS AT THE END
 
         account.setBalance(account.getBalance() + amount);
     }
 
-    private void addSavingsAccount(CommandInput command) {
+    /**
+     *
+     * @param command
+     */
+    private void addSavingsAccount(final CommandInput command) {
         User user = findUser(command.getEmail());
 
         //DELETE THIS AT THE END
-        if (user == null)
+        if (user == null) {
             System.out.println("Nu gasesc useru frate");
+        }
         //DELETE THIS AT THE END
 
         Account account = new Account.Builder(command.getCurrency(), command.getAccountType())
@@ -148,12 +170,17 @@ public class BankingSystem {
         user.addNewAccountTransaction(command);
     }
 
-    private void addClassicAccount(CommandInput command) {
+    /**
+     *
+     * @param command
+     */
+    private void addClassicAccount(final CommandInput command) {
         User user = findUser(command.getEmail());
 
         //DELETE THIS AT THE END
-        if (user == null)
+        if (user == null) {
             System.out.println("Nu gasesc useru frate");
+        }
         //DELETE THIS AT THE END
 
         Account account = new Account.Builder(command.getCurrency(), command.getAccountType())
@@ -163,35 +190,57 @@ public class BankingSystem {
         user.addNewAccountTransaction(command);
     }
 
-    private User findUserOfAccount(String accountIBAN) {
+    /**
+     *
+     * @param accountIBAN
+     * @return
+     */
+    private User findUserOfAccount(final String accountIBAN) {
         for (User user : users) {
             for (Account account: user.getAccounts()) {
-                if (account.getAccountIBAN().equals(accountIBAN))
+                if (account.getAccountIBAN().equals(accountIBAN)) {
                     return user;
+                }
             }
         }
         return null;
     }
 
-    private User findUser(String email) {
+    /**
+     *
+     * @param email
+     * @return
+     */
+    private User findUser(final String email) {
         for (User user : users) {
-            if (user.getEmail().equals(email))
+            if (user.getEmail().equals(email)) {
                 return user;
+            }
         }
         return null;
     }
 
-    private Account findAccount(String accountIBAN) {
+    /**
+     *
+     * @param accountIBAN
+     * @return
+     */
+    private Account findAccount(final String accountIBAN) {
         for (User user : users) {
             for (Account account: user.getAccounts()) {
-                if (account.getAccountIBAN().equals(accountIBAN))
+                if (account.getAccountIBAN().equals(accountIBAN)) {
                     return account;
+                }
             }
         }
         return null;
     }
 
-    private void buildJsonPrintUsers(ObjectNode objectNode) {
+    /**
+     *
+     * @param objectNode
+     */
+    private void buildJsonPrintUsers(final ObjectNode objectNode) {
         ObjectMapper mapper = new ObjectMapper();
 
         objectNode.put("command", "printUsers");
@@ -211,6 +260,10 @@ public class BankingSystem {
         objectNode.set("output", usersArray);
     }
 
+    /**
+     *
+     * @param users
+     */
     public void setUsers(final UserInput[] users) {
         for (UserInput user : users) {
             User customer = new User(user);
@@ -218,6 +271,10 @@ public class BankingSystem {
         }
     }
 
+    /**
+     *
+     * @param exchangeRates
+     */
     public void setExchangeRates(final ExchangeInput[] exchangeRates) {
         for (ExchangeInput exchangeRate : exchangeRates) {
             ExchangeRate rate = new ExchangeRate(exchangeRate);
