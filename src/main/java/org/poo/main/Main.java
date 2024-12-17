@@ -74,24 +74,17 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
 
-        /*
-         * TODO Implement your function here
-         *
-         * How to add output to the output array?
-         * There are multiple ways to do this, here is one example:
-         *
-         * ObjectMapper mapper = new ObjectMapper();
-         *
-         * ObjectNode objectNode = mapper.createObjectNode();
-         * objectNode.put("field_name", "field_value");
-         *
-         * ArrayNode arrayNode = mapper.createArrayNode();
-         * arrayNode.add(objectNode);
-         *
-         * output.add(arrayNode);
-         * output.add(objectNode);
-         *
-         */
+        //Singleton instance
+        BankingSystem bankingSystem = BankingSystem.getInstance();
+
+        //set users
+        bankingSystem.setUsers(inputData.getUsers());
+
+        //set exchange rates
+        bankingSystem.setExchangeRates(inputData.getExchangeRates());
+
+        //parse through commands
+        bankingSystem.doCommands(inputData.getCommands(), output);
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
