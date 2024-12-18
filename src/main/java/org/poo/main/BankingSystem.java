@@ -1,5 +1,6 @@
 package org.poo.main;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -99,6 +100,8 @@ public class BankingSystem {
                     break;
 
                 case "printTransactions":
+                    printTransactions(command, objectNode);
+                    output.add(objectNode);
                     break;
 
                 case "checkCardStatus":
@@ -121,6 +124,30 @@ public class BankingSystem {
         }
     }
 
+    /**
+     *
+     * @param command
+     * @param objectNode
+     */
+    private void printTransactions(final CommandInput command, final ObjectNode objectNode) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ArrayNode transactions = objectMapper.createArrayNode();
+
+        for (JsonNode jsonNode : findUser(command.getEmail()).getTransactionHistory()) {
+            if (jsonNode.get("timestamp").asInt() <= command.getTimestamp()) {
+                transactions.add(jsonNode);
+            }
+        }
+
+        objectNode.put("command", command.getCommand());
+        objectNode.set("output", transactions);
+        objectNode.put("timestamp", command.getTimestamp());
+    }
+
+    /**
+     *
+     * @param command
+     */
     private void setAlias(final CommandInput command) {
         if (!findUser(command.getEmail()).equals(findUserOfAccount(command.getAccount()))) {
             //PROPRIETARUL CONTULUI SI UTILIZATORUL NU SUNT ACEEASI
@@ -131,14 +158,20 @@ public class BankingSystem {
         }
     }
 
+    /**
+     *
+     * @param command
+     */
     private void sendMoney(final CommandInput command) {
         //System.out.println(command.getAccount());
         //System.out.println(command.getReceiver());
         //System.out.println();
+
         Account sender = findAccount(command.getAccount());
         Account receiver = findAccount(command.getReceiver());
+        boolean isSenderAlias = sender.getAlias().equals(command.getAccount());
 
-        if (sender ==  null || receiver == null ) {
+        if (sender ==  null || receiver == null || isSenderAlias) {
             //UN ACCOUNT NU EXISTA
             return;
         }
@@ -165,7 +198,8 @@ public class BankingSystem {
             //System.out.println(receiver);
             //System.out.println();
 
-            //ADAUGARE IN HISTORYT OF THIS!!
+            User user = findUserOfAccount(sender.getAccountIBAN());
+            user.addSendMoneyTransaction(command, sender, receiver);
         }
     }
 
@@ -183,19 +217,7 @@ public class BankingSystem {
             //CARDUL A FOST STERS
             //System.out.println("Cardul e sters");
             //CRED CA NU MAI TREBUIE SA FAC NIMIC AICI
-            ObjectMapper mapper = new ObjectMapper();
-
-            objectNode.put("command", "payOnline");
-
-            ObjectNode outputArray = mapper.createObjectNode();
-            outputArray.put("timestamp", command.getTimestamp());
-            outputArray.put("description", "Card not found");
-
-            objectNode.set("output", outputArray);
-
-            objectNode.put("timestamp", command.getTimestamp());
-
-            output.add(objectNode);
+            buildJsonPayOnlineCardNotFound(command, objectNode, output);
         } else if (card.isFrozen()) {
             //NU SE POATE PLATI PT E BLOCAT CARDUL
             System.out.println("Cardul e blocat");
@@ -211,11 +233,26 @@ public class BankingSystem {
 
                 if (findAccountOfCard(command.getCardNumber()).getBalance() < pay) {
                     //NU ARE DESTUI BANI
+                    User user = findUserOfAccountOfCard(card.getNumber());
+                    user.addPayOnlineInsufficientFunds(command);
                 } else {
                     Account account = findAccountOfCard(command.getCardNumber());
+
+                    System.out.println(account);
+                    System.out.println(account.getCurrency() + " " + command.getCurrency() + " " + rate
+                            + " " + command.getAmount());
+                    System.out.println();
+
                     account.setBalance(account.getBalance() - pay);
 
-                    //ADAUGARE IN HISTORYT OF THIS!!
+                    System.out.println(account);
+                    System.out.println();
+
+                    //ADAUGARE IN HISTORYT OF THIS
+                    User user = findUserOfAccountOfCard(card.getNumber());
+                    user.addPayOnlinePayment(command, pay);
+
+
 
                     //ONETIMEPAY CARD
                     card.setHasPayed(true);
@@ -304,7 +341,7 @@ public class BankingSystem {
                 user.getAccounts().remove(account);
                 buildJsonDeleteAccount(command, objectNode);
             } else {
-                //TREBUIE SA SEMNALEZI IN TRANSACTIONHISTORY
+                buildJsonDeleteAccountForNonZeroBalance(command, objectNode);
             }
         }
     }
@@ -471,6 +508,44 @@ public class BankingSystem {
         return null;
     }
 
+    private void buildJsonPayOnlineCardNotFound(final CommandInput command,
+                                                final ObjectNode objectNode,
+                                                final ArrayNode output) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        objectNode.put("command", "payOnline");
+
+        ObjectNode outputArray = mapper.createObjectNode();
+        outputArray.put("timestamp", command.getTimestamp());
+        outputArray.put("description", "Card not found");
+
+        objectNode.set("output", outputArray);
+
+        objectNode.put("timestamp", command.getTimestamp());
+
+        output.add(objectNode);
+    }
+
+    /**
+     *
+     * @param command
+     * @param objectNode
+     */
+    private void buildJsonDeleteAccountForNonZeroBalance(final CommandInput command,
+                                                         final ObjectNode objectNode) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        objectNode.put("command", "deleteAccount");
+
+        ObjectNode outputArray = mapper.createObjectNode();
+        outputArray.put("error", "Account couldn't be deleted - see org.poo.transactions for details");
+        outputArray.put("timestamp", command.getTimestamp());
+
+        objectNode.set("output", outputArray);
+
+        objectNode.put("timestamp", command.getTimestamp());
+    }
+
     private void buildJsonDeleteAccount(final CommandInput command, final ObjectNode objectNode) {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -532,10 +607,6 @@ public class BankingSystem {
         for (ExchangeInput exchangeRate : exchangeRates) {
             ExchangeRate rate = new ExchangeRate(exchangeRate);
             this.exchangeRates.add(rate);
-
-            currencyConverter.add(new ExchangeRate(exchangeRate));
-            currencyConverter.add(new ExchangeRate(exchangeRate.getTo(),
-                    exchangeRate.getFrom(), 1.0 / exchangeRate.getRate()));
         }
     }
 
@@ -546,48 +617,10 @@ public class BankingSystem {
      * @return
      */
     public double getExchangeRate(final String from, final String to) {
-        if (from.equals(to)) return 1.0;
+        CurrencyConverter converter = new CurrencyConverter();
+        converter.constructGraph(exchangeRates);
 
-        Map<String, Map<String, Double>> rateMap = new HashMap<>();
-        for (ExchangeRate edge : currencyConverter) {
-            rateMap.computeIfAbsent(edge.getFrom(), k -> new HashMap<>()).put(edge.getTo(), edge.getRate());
-        }
-
-        if (rateMap.containsKey(from) && rateMap.get(from).containsKey(to)) {
-            return rateMap.get(from).get(to);
-        }
-
-        Queue<String> queue = new LinkedList<>();
-        Queue<Double> rateQueue = new LinkedList<>();
-        Set<String> visited = new HashSet<>();
-
-        queue.add(from);
-        rateQueue.add(1.0);
-        visited.add(from);
-
-        while (!queue.isEmpty()) {
-            String currentCurrency = queue.poll();
-            double currentRate = rateQueue.poll();
-
-            if (!rateMap.containsKey(currentCurrency)) continue;
-
-            for (Map.Entry<String, Double> entry : rateMap.get(currentCurrency).entrySet()) {
-                String nextCurrency = entry.getKey();
-                double newRate = currentRate * entry.getValue();
-
-                if (nextCurrency.equals(to)) {
-                    return newRate;
-                }
-
-                if (!visited.contains(nextCurrency)) {
-                    queue.add(nextCurrency);
-                    rateQueue.add(newRate);
-                    visited.add(nextCurrency);
-                }
-            }
-        }
-
-        return -1.0;
+        return converter.getRate(from, to);
     }
 
     public List<User> getUsers() {

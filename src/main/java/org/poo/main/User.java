@@ -85,6 +85,59 @@ public class User {
 
     /**
      *
+     * @param command
+     */
+    public void addPayOnlineInsufficientFunds(final CommandInput command) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newPayOnlineNode = mapper.createObjectNode();
+        newPayOnlineNode.put("timestamp", command.getTimestamp());
+        newPayOnlineNode.put("description", "Insufficient funds");
+
+        transactionHistory.add(newPayOnlineNode);
+    }
+
+    /**
+     *
+     * @param command
+     * @param pay
+     */
+    public void addPayOnlinePayment(final CommandInput command, final double pay) {
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newPayOnlineNode = mapper.createObjectNode();
+        newPayOnlineNode.put("timestamp", command.getTimestamp());
+        newPayOnlineNode.put("description", "Card payment");
+        newPayOnlineNode.put("amount", pay);
+        newPayOnlineNode.put("commerciant", command.getCommerciant());
+
+        transactionHistory.add(newPayOnlineNode);
+    }
+
+    /**
+     *
+     * @param command
+     * @param sender
+     * @param receiver
+     */
+    public void addSendMoneyTransaction(final CommandInput command, final Account sender,
+                                        final Account receiver) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newSendMoneyNode = mapper.createObjectNode();
+        newSendMoneyNode.put("timestamp", command.getTimestamp());
+        newSendMoneyNode.put("description", command.getDescription());
+        newSendMoneyNode.put("senderIBAN", sender.getAccountIBAN());
+        newSendMoneyNode.put("receiverIBAN", receiver.getAccountIBAN());
+        newSendMoneyNode.put("amount", command.getAmount() + " " + sender.getCurrency());
+        newSendMoneyNode.put("transferType", "sent");
+
+        transactionHistory.add(newSendMoneyNode);
+    }
+
+    /**
+     *
      * @param timestamp
      * @param card
      * @param account
@@ -180,6 +233,14 @@ public class User {
      */
     public void setAccounts(final List<Account> accounts) {
         this.accounts = accounts;
+    }
+
+    public ArrayNode getTransactionHistory() {
+        return transactionHistory;
+    }
+
+    public void setTransactionHistory(ArrayNode transactionHistory) {
+        this.transactionHistory = transactionHistory;
     }
 
     /**
