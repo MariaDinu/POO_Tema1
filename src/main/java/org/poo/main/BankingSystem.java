@@ -87,13 +87,15 @@ public class BankingSystem {
                     break;
 
                 case "payOnline":
-                    payOnline(command);
+                    payOnline(command, objectNode, output);
                     break;
 
                 case "sendMoney":
+                    sendMoney(command);
                     break;
 
                 case "setAlias":
+                    setAlias(command);
                     break;
 
                 case "printTransactions":
@@ -119,12 +121,81 @@ public class BankingSystem {
         }
     }
 
-    private void payOnline(final CommandInput command) {
+    private void setAlias(final CommandInput command) {
+        if (!findUser(command.getEmail()).equals(findUserOfAccount(command.getAccount()))) {
+            //PROPRIETARUL CONTULUI SI UTILIZATORUL NU SUNT ACEEASI
+            System.out.println("PROPRIETARUL CONTULUI SI UTILIZATORUL NU SUNT ACEEASI");
+        } else {
+            Account account = findAccount(command.getAccount());
+            account.setAlias(command.getAlias());
+        }
+    }
+
+    private void sendMoney(final CommandInput command) {
+        //System.out.println(command.getAccount());
+        //System.out.println(command.getReceiver());
+        //System.out.println();
+        Account sender = findAccount(command.getAccount());
+        Account receiver = findAccount(command.getReceiver());
+
+        if (sender ==  null || receiver == null ) {
+            //UN ACCOUNT NU EXISTA
+            return;
+        }
+
+        double rate = getExchangeRate(sender.getCurrency(), receiver.getCurrency());
+        double pay = command.getAmount() * rate;
+
+        if (sender.getBalance() < pay) {
+            //NU ARE DESTUI BANI
+            System.out.println("NOT ENOUGHT MONEY SENDMONEY!");
+        } else if (sender.getBalance() < sender.getMinBalance()) {
+            //NU MAI AI VOIE LA BANI
+            System.out.println("NU MAI AI VOIE LA BANI! REFUZ PLATA");
+        } else {
+            //System.out.println(sender);
+            //System.out.println(receiver);
+            //System.out.println(sender.getCurrency() + " " + receiver.getCurrency() + " " + rate
+            //+ " " + command.getAmount());
+            //System.out.println();
+
+            sender.setBalance(sender.getBalance() - command.getAmount());
+            receiver.setBalance(receiver.getBalance() + pay);
+            //System.out.println(sender);
+            //System.out.println(receiver);
+            //System.out.println();
+
+            //ADAUGARE IN HISTORYT OF THIS!!
+        }
+    }
+
+    /**
+     *
+     * @param command
+     * @param objectNode
+     * @param output
+     */
+    private void payOnline(final CommandInput command, final ObjectNode objectNode,
+                           final ArrayNode output) {
         Card card = findCard(command.getCardNumber());
 
         if (card == null) {
             //CARDUL A FOST STERS
-            System.out.println("Cardul e sters");
+            //System.out.println("Cardul e sters");
+            //CRED CA NU MAI TREBUIE SA FAC NIMIC AICI
+            ObjectMapper mapper = new ObjectMapper();
+
+            objectNode.put("command", "payOnline");
+
+            ObjectNode outputArray = mapper.createObjectNode();
+            outputArray.put("timestamp", command.getTimestamp());
+            outputArray.put("description", "Card not found");
+
+            objectNode.set("output", outputArray);
+
+            objectNode.put("timestamp", command.getTimestamp());
+
+            output.add(objectNode);
         } else if (card.isFrozen()) {
             //NU SE POATE PLATI PT E BLOCAT CARDUL
             System.out.println("Cardul e blocat");
@@ -159,7 +230,7 @@ public class BankingSystem {
                         //POATE CEVA IN HISTORYT????
                     }
 
-                    if (account.getBalance() < account.getMinBalance()) {
+                    if (account.getBalance() <= account.getMinBalance()) {
                         card.setFrozen(true);
                         //POATE CEVA IN HISTORYT????
                     }
@@ -392,7 +463,7 @@ public class BankingSystem {
     private Account findAccount(final String accountIBAN) {
         for (User user : users) {
             for (Account account: user.getAccounts()) {
-                if (account.getAccountIBAN().equals(accountIBAN)) {
+                if (account.getAccountIBAN().equals(accountIBAN) || account.getAlias().equals(accountIBAN)) {
                     return account;
                 }
             }
@@ -477,6 +548,15 @@ public class BankingSystem {
     public double getExchangeRate(final String from, final String to) {
         if (from.equals(to)) return 1.0;
 
+        Map<String, Map<String, Double>> rateMap = new HashMap<>();
+        for (ExchangeRate edge : currencyConverter) {
+            rateMap.computeIfAbsent(edge.getFrom(), k -> new HashMap<>()).put(edge.getTo(), edge.getRate());
+        }
+
+        if (rateMap.containsKey(from) && rateMap.get(from).containsKey(to)) {
+            return rateMap.get(from).get(to);
+        }
+
         Queue<String> queue = new LinkedList<>();
         Queue<Double> rateQueue = new LinkedList<>();
         Set<String> visited = new HashSet<>();
@@ -489,22 +569,25 @@ public class BankingSystem {
             String currentCurrency = queue.poll();
             double currentRate = rateQueue.poll();
 
-            for (ExchangeRate edge : currencyConverter) {
-                if (edge.getFrom().equals(currentCurrency) && !visited.contains(edge.getTo())) {
-                    double newRate = currentRate * edge.getRate();
+            if (!rateMap.containsKey(currentCurrency)) continue;
 
-                    if (edge.getTo().equals(to)) {
-                        return newRate;
-                    }
+            for (Map.Entry<String, Double> entry : rateMap.get(currentCurrency).entrySet()) {
+                String nextCurrency = entry.getKey();
+                double newRate = currentRate * entry.getValue();
 
-                    queue.add(edge.getTo());
+                if (nextCurrency.equals(to)) {
+                    return newRate;
+                }
+
+                if (!visited.contains(nextCurrency)) {
+                    queue.add(nextCurrency);
                     rateQueue.add(newRate);
-                    visited.add(edge.getTo());
+                    visited.add(nextCurrency);
                 }
             }
         }
 
-        return -1;
+        return -1.0;
     }
 
     public List<User> getUsers() {

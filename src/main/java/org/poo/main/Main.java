@@ -75,6 +75,9 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
 
+
+        System.out.println("------------------Test-------------------");
+
         //Reset Random
         Utils.resetRandom();
 
