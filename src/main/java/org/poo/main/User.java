@@ -100,6 +100,51 @@ public class User {
     /**
      *
      * @param command
+     */
+    public void addSendMoneyInsufficientFunds(final CommandInput command) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newPayOnlineNode = mapper.createObjectNode();
+        newPayOnlineNode.put("timestamp", command.getTimestamp());
+        newPayOnlineNode.put("description", "Insufficient funds");
+
+        transactionHistory.add(newPayOnlineNode);
+    }
+
+    /**
+     *
+     * @param command
+     */
+    public void addCardIsFrozenCheck(final CommandInput command) {
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newFrozenCardNode = mapper.createObjectNode();
+        newFrozenCardNode.put("timestamp", command.getTimestamp());
+        newFrozenCardNode.put("description", "You have reached the " +
+                "minimum amount of funds, the card will be frozen");
+
+        transactionHistory.add(newFrozenCardNode);
+    }
+
+    /**
+     *
+     * @param command
+     */
+    public void addCardIsFrozen(final CommandInput command) {
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newFrozenCardNode = mapper.createObjectNode();
+        newFrozenCardNode.put("timestamp", command.getTimestamp());
+        newFrozenCardNode.put("description", "The card is frozen");
+
+        transactionHistory.add(newFrozenCardNode);
+    }
+
+    /**
+     *
+     * @param command
      * @param pay
      */
     public void addPayOnlinePayment(final CommandInput command, final double pay) {

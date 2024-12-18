@@ -105,6 +105,7 @@ public class BankingSystem {
                     break;
 
                 case "checkCardStatus":
+                    checkCardStatus(command, objectNode, output);
                     break;
 
                 case "changeInterestRate":
@@ -122,6 +123,43 @@ public class BankingSystem {
                 default:
             }
         }
+    }
+
+    /**
+     *
+     * @param command
+     */
+    private void checkCardStatus(final CommandInput command, final ObjectNode objectNode,
+                                 final ArrayNode output) {
+        Card card = findCard(command.getCardNumber());
+
+        if (card == null) {
+            buildJsonCardStatusNotFound(command, objectNode);
+            output.add(objectNode);
+            return;
+        }
+
+        if (card.isFrozen()) {
+            //DO NOTHING I GUESS
+            return;
+        }
+
+        User user = findUserOfAccountOfCard(command.getCardNumber());
+        Account account = findAccountOfCard(command.getCardNumber());
+
+        if (account.getBalance() <= account.getMinBalance()) {
+            card.setFrozen(true);
+            card.setStatus("frozen");
+            user.addCardIsFrozenCheck(command);
+        }
+
+//        if (card.isWarning()) {
+//            //POATE MAI TREBUIE CEVA AICI NU STIU INCA
+//            card.setWarning(true);
+//            card.setStatus("warning");
+//        }
+
+
     }
 
     /**
@@ -173,18 +211,25 @@ public class BankingSystem {
 
         if (sender ==  null || receiver == null || isSenderAlias) {
             //UN ACCOUNT NU EXISTA
+            System.out.println("DONDE EXISTAS ACCOUNT");
             return;
         }
 
         double rate = getExchangeRate(sender.getCurrency(), receiver.getCurrency());
         double pay = command.getAmount() * rate;
 
-        if (sender.getBalance() < pay) {
+        //System.out.println(rate);
+        //System.out.println(pay);
+        //System.out.println();
+
+
+        if (sender.getBalance() < command.getAmount()) {
             //NU ARE DESTUI BANI
-            System.out.println("NOT ENOUGHT MONEY SENDMONEY!");
-        } else if (sender.getBalance() < sender.getMinBalance()) {
-            //NU MAI AI VOIE LA BANI
-            System.out.println("NU MAI AI VOIE LA BANI! REFUZ PLATA");
+            //System.out.println("NOT ENOUGHT MONEY SENDMONEY!");
+
+            //TREBUIE SA ADAUGI INSUFFICIENT FUNDS IN HISTORY
+            User user = findUserOfAccount(sender.getAccountIBAN());
+            user.addSendMoneyInsufficientFunds(command);
         } else {
             //System.out.println(sender);
             //System.out.println(receiver);
@@ -194,6 +239,13 @@ public class BankingSystem {
 
             sender.setBalance(sender.getBalance() - command.getAmount());
             receiver.setBalance(receiver.getBalance() + pay);
+
+            if (receiver.getBalance() > receiver.getMinBalance() + 30) {
+                for (Card card : receiver.getCards()) {
+                    card.setWarning(false);
+                }
+            }
+
             //System.out.println(sender);
             //System.out.println(receiver);
             //System.out.println();
@@ -218,9 +270,12 @@ public class BankingSystem {
             //System.out.println("Cardul e sters");
             //CRED CA NU MAI TREBUIE SA FAC NIMIC AICI
             buildJsonPayOnlineCardNotFound(command, objectNode, output);
+            //System.out.println("CARD NOT FOUND BITCH");
         } else if (card.isFrozen()) {
             //NU SE POATE PLATI PT E BLOCAT CARDUL
-            System.out.println("Cardul e blocat");
+            User user = findUserOfAccountOfCard(card.getNumber());
+            user.addCardIsFrozen(command);
+            //System.out.println("CARD IS BLOCKED BITCH");
         } else {
             if(!command.getEmail().equals(findUserOfAccountOfCard(command.getCardNumber()).getEmail())) {
                 //NU E PROPRIETARUL CARDULUI
@@ -235,18 +290,22 @@ public class BankingSystem {
                     //NU ARE DESTUI BANI
                     User user = findUserOfAccountOfCard(card.getNumber());
                     user.addPayOnlineInsufficientFunds(command);
+                } else if (findAccountOfCard(command.getCardNumber()).getBalance() <
+                        findAccountOfCard(command.getCardNumber()).getMinBalance()) {
+                    //NU MAI AI VOIE LA BANI
+                    System.out.println("NU MAI AI VOIE LA BANI! REFUZ PLATA");
                 } else {
                     Account account = findAccountOfCard(command.getCardNumber());
 
-                    System.out.println(account);
-                    System.out.println(account.getCurrency() + " " + command.getCurrency() + " " + rate
-                            + " " + command.getAmount());
-                    System.out.println();
+                    //System.out.println(account);
+                    //System.out.println(account.getCurrency() + " " + command.getCurrency() + " " + rate
+                    //        + " " + command.getAmount());
+                    //System.out.println();
 
                     account.setBalance(account.getBalance() - pay);
 
-                    System.out.println(account);
-                    System.out.println();
+                    //System.out.println(account);
+                    //System.out.println();
 
                     //ADAUGARE IN HISTORYT OF THIS
                     User user = findUserOfAccountOfCard(card.getNumber());
@@ -262,7 +321,7 @@ public class BankingSystem {
                         card.setFrozen(true);
                     }
 
-                    if (account.getBalance() <= (account.getMinBalance() + 30)) {
+                    /*if (account.getBalance() <= (account.getMinBalance() + 30)) {
                         card.setWarning(true);
                         //POATE CEVA IN HISTORYT????
                     }
@@ -270,7 +329,7 @@ public class BankingSystem {
                     if (account.getBalance() <= account.getMinBalance()) {
                         card.setFrozen(true);
                         //POATE CEVA IN HISTORYT????
-                    }
+                    }*/
                 }
             }
         }
@@ -506,6 +565,21 @@ public class BankingSystem {
             }
         }
         return null;
+    }
+
+    private void buildJsonCardStatusNotFound(final CommandInput command,
+                                             final ObjectNode objectNode) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        objectNode.put("command", command.getCommand());
+
+        ObjectNode outputArray = mapper.createObjectNode();
+        outputArray.put("timestamp", command.getTimestamp());
+        outputArray.put("description", "Card not found");
+
+        objectNode.set("output", outputArray);
+
+        objectNode.put("timestamp", command.getTimestamp());
     }
 
     private void buildJsonPayOnlineCardNotFound(final CommandInput command,
