@@ -83,6 +83,27 @@ public class User {
         transactionHistory.add(newCardNode);
     }
 
+    /**
+     *
+     * @param timestamp
+     * @param card
+     * @param account
+     * @param user
+     */
+    public void addNewCardTransaction(final int timestamp, final Card card,
+                                      final Account account, final User user) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newCardNode = mapper.createObjectNode();
+        newCardNode.put("timestamp", timestamp);
+        newCardNode.put("description", "New card created");
+        newCardNode.put("card", card.getNumber());
+        newCardNode.put("cardHolder", user.getEmail());
+        newCardNode.put("account", account.getAccountIBAN());
+
+        transactionHistory.add(newCardNode);
+    }
+
     public void addDeleteCardTransaction(final CommandInput command, final User user,
                                          final Account account, final Card card) {
         ObjectMapper mapper = new ObjectMapper();

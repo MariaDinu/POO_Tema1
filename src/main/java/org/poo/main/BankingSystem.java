@@ -9,16 +9,15 @@ import org.poo.fileio.UserInput;
 import org.poo.main.accounts.Account;
 import org.poo.main.cards.Card;
 import org.poo.main.cards.cardFactory.CardFactory;
-import org.poo.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class BankingSystem {
     private static BankingSystem instance = null;
     private List<User> users;
     private List<ExchangeRate> exchangeRates;
-    //int timestamp;
+
+    private final List<ExchangeRate> currencyConverter = new ArrayList<>();
 
     public BankingSystem() { }
 
@@ -88,6 +87,7 @@ public class BankingSystem {
                     break;
 
                 case "payOnline":
+                    payOnline(command);
                     break;
 
                 case "sendMoney":
@@ -117,6 +117,68 @@ public class BankingSystem {
                 default:
             }
         }
+    }
+
+    private void payOnline(final CommandInput command) {
+        Card card = findCard(command.getCardNumber());
+
+        if (card == null) {
+            //CARDUL A FOST STERS
+            System.out.println("Cardul e sters");
+        } else if (card.isFrozen()) {
+            //NU SE POATE PLATI PT E BLOCAT CARDUL
+            System.out.println("Cardul e blocat");
+        } else {
+            if(!command.getEmail().equals(findUserOfAccountOfCard(command.getCardNumber()).getEmail())) {
+                //NU E PROPRIETARUL CARDULUI
+                System.out.println("Nu e prop cardului");
+            } else {
+                double rate = getExchangeRate(command.getCurrency(),
+                        findAccountOfCard(command.getCardNumber()).getCurrency());
+
+                double pay = command.getAmount() * rate;
+
+                if (findAccountOfCard(command.getCardNumber()).getBalance() < pay) {
+                    //NU ARE DESTUI BANI
+                } else {
+                    Account account = findAccountOfCard(command.getCardNumber());
+                    account.setBalance(account.getBalance() - pay);
+
+                    //ADAUGARE IN HISTORYT OF THIS!!
+
+                    //ONETIMEPAY CARD
+                    card.setHasPayed(true);
+                    if (card.getHasPayed()) {
+                        //deleteCard(command);
+                        createCard("OneTimeCard", command.getTimestamp(), account);
+                        card.setFrozen(true);
+                    }
+
+                    if (account.getBalance() <= (account.getMinBalance() + 30)) {
+                        card.setWarning(true);
+                        //POATE CEVA IN HISTORYT????
+                    }
+
+                    if (account.getBalance() < account.getMinBalance()) {
+                        card.setFrozen(true);
+                        //POATE CEVA IN HISTORYT????
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param type
+     * @param account
+     */
+    private void createCard(final String type, final int timestamp, final Account account) {
+        Card card = CardFactory.createCard(type);
+        account.getCards().add(card);
+
+        User user = findUserOfAccount(account.getAccountIBAN());
+        user.addNewCardTransaction(timestamp, card, account, findUserOfAccount(account.getAccountIBAN()));
     }
 
     /**
@@ -399,7 +461,50 @@ public class BankingSystem {
         for (ExchangeInput exchangeRate : exchangeRates) {
             ExchangeRate rate = new ExchangeRate(exchangeRate);
             this.exchangeRates.add(rate);
+
+            currencyConverter.add(new ExchangeRate(exchangeRate));
+            currencyConverter.add(new ExchangeRate(exchangeRate.getTo(),
+                    exchangeRate.getFrom(), 1.0 / exchangeRate.getRate()));
         }
+    }
+
+    /**
+     *
+     * @param from
+     * @param to
+     * @return
+     */
+    public double getExchangeRate(final String from, final String to) {
+        if (from.equals(to)) return 1.0;
+
+        Queue<String> queue = new LinkedList<>();
+        Queue<Double> rateQueue = new LinkedList<>();
+        Set<String> visited = new HashSet<>();
+
+        queue.add(from);
+        rateQueue.add(1.0);
+        visited.add(from);
+
+        while (!queue.isEmpty()) {
+            String currentCurrency = queue.poll();
+            double currentRate = rateQueue.poll();
+
+            for (ExchangeRate edge : currencyConverter) {
+                if (edge.getFrom().equals(currentCurrency) && !visited.contains(edge.getTo())) {
+                    double newRate = currentRate * edge.getRate();
+
+                    if (edge.getTo().equals(to)) {
+                        return newRate;
+                    }
+
+                    queue.add(edge.getTo());
+                    rateQueue.add(newRate);
+                    visited.add(edge.getTo());
+                }
+            }
+        }
+
+        return -1;
     }
 
     public List<User> getUsers() {
