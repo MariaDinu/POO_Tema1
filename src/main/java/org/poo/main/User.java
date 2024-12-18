@@ -83,6 +83,20 @@ public class User {
         transactionHistory.add(newCardNode);
     }
 
+    public void addDeleteCardTransaction(final CommandInput command, final User user,
+                                         final Account account, final Card card) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode deleteCardNode = mapper.createObjectNode();
+        deleteCardNode.put("timestamp", command.getTimestamp());
+        deleteCardNode.put("description", "The card has been destroyed");
+        deleteCardNode.put("card", card.getNumber());
+        deleteCardNode.put("cardHolder", user.getEmail());
+        deleteCardNode.put("account", account.getAccountIBAN());
+
+        transactionHistory.add(deleteCardNode);
+    }
+
     /**
      *
      * @return

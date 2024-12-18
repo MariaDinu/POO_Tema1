@@ -9,6 +9,7 @@ import org.poo.fileio.UserInput;
 import org.poo.main.accounts.Account;
 import org.poo.main.cards.Card;
 import org.poo.main.cards.cardFactory.CardFactory;
+import org.poo.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +20,7 @@ public class BankingSystem {
     private List<ExchangeRate> exchangeRates;
     //int timestamp;
 
-    public BankingSystem() {
-        users = new ArrayList<>();
-        exchangeRates = new ArrayList<>();
-    }
+    public BankingSystem() { }
 
     /**
      * Singleton instance
@@ -44,6 +42,7 @@ public class BankingSystem {
         ObjectMapper mapper = new ObjectMapper();
 
         for (CommandInput command : commands) {
+            String type;
             ObjectNode objectNode = mapper.createObjectNode();
 
             switch (command.getCommand()) {
@@ -62,7 +61,7 @@ public class BankingSystem {
                     break;
 
                 case "createCard":
-                    String type = "Card";
+                    type = "Card";
                     createCard(type, command);
                     break;
 
@@ -71,15 +70,21 @@ public class BankingSystem {
                     break;
 
                 case "deleteAccount":
+                    deleteAccount(command, objectNode);
+                    output.add(objectNode);
                     break;
 
                 case "createOneTimeCard":
+                    type = "OneTimeCard";
+                    createCard(type, command);
                     break;
 
                 case "deleteCard":
+                    deleteCard(command);
                     break;
 
                 case "setMinimumBalance":
+                    setMinimumBalance(command);
                     break;
 
                 case "payOnline":
@@ -120,6 +125,11 @@ public class BankingSystem {
      * @param command
      */
     private void createCard(final String type, final CommandInput command) {
+        if (findUserOfAccount(command.getAccount()) == null) {
+            System.out.println("Unde e useru pt createCard");
+            return;
+        }
+
         if (!command.getEmail().equals(findUserOfAccount(command.getAccount()).getEmail())) {
             //TREBUIE SA SEMNALEZI IN TRANSACTIONHISTORY
         } else {
@@ -132,6 +142,40 @@ public class BankingSystem {
         }
     }
 
+    private void deleteCard(final CommandInput command) {
+        if (findCard(command.getCardNumber()) == null) {
+            //CARDUL A FOST STERS DEJA
+            System.out.println("S a sters cardul oopsie");
+        } else {
+            User user = findUserOfAccountOfCard(command.getCardNumber());
+            Account account = findAccountOfCard(command.getCardNumber());
+            Card card = findCard(command.getCardNumber());
+
+            account.getCards().remove(card);
+            user.addDeleteCardTransaction(command, user, account, card);
+        }
+    }
+    private void deleteAccount(final CommandInput command, final ObjectNode objectNode) {
+        if (findUserOfAccount(command.getAccount()) == null) {
+            System.out.println("Unde e useru pt createCard");
+            return;
+        }
+
+        if (!command.getEmail().equals(findUserOfAccount(command.getAccount()).getEmail())) {
+            //TREBUIE SA SEMNALEZI IN TRANSACTIONHISTORY
+        } else {
+            User user = findUser(command.getEmail());
+            Account account = findAccount(command.getAccount());
+
+            if (account.getBalance() == 0.0) {
+                user.getAccounts().remove(account);
+                buildJsonDeleteAccount(command, objectNode);
+            } else {
+                //TREBUIE SA SEMNALEZI IN TRANSACTIONHISTORY
+            }
+        }
+    }
+
     /**
      *
      * @param accountIBAN
@@ -140,13 +184,20 @@ public class BankingSystem {
     private void addFunds(final String accountIBAN, final double amount) {
         Account account = findAccount(accountIBAN);
 
-        //DELETE THIS AT THE END
         if (account == null) {
             System.out.println("Nu gasesc accountu frate");
+        } else {
+            account.setBalance(account.getBalance() + amount);
         }
-        //DELETE THIS AT THE END
+    }
 
-        account.setBalance(account.getBalance() + amount);
+    /**
+     *
+     * @param command
+     */
+    private void setMinimumBalance(final CommandInput command) {
+        Account account = findAccount(command.getAccount());
+        account.setMinBalance(command.getAmount());
     }
 
     /**
@@ -156,18 +207,17 @@ public class BankingSystem {
     private void addSavingsAccount(final CommandInput command) {
         User user = findUser(command.getEmail());
 
-        //DELETE THIS AT THE END
         if (user == null) {
             System.out.println("Nu gasesc useru frate");
+        } else {
+
+            Account account = new Account.Builder(command.getCurrency(), command.getAccountType())
+                    .setInterestRate(command.getInterestRate())
+                    .build();
+
+            user.getAccounts().add(account);
+            user.addNewAccountTransaction(command);
         }
-        //DELETE THIS AT THE END
-
-        Account account = new Account.Builder(command.getCurrency(), command.getAccountType())
-                .setInterestRate(command.getInterestRate())
-                .build();
-
-        user.getAccounts().add(account);
-        user.addNewAccountTransaction(command);
     }
 
     /**
@@ -177,17 +227,15 @@ public class BankingSystem {
     private void addClassicAccount(final CommandInput command) {
         User user = findUser(command.getEmail());
 
-        //DELETE THIS AT THE END
         if (user == null) {
             System.out.println("Nu gasesc useru frate");
+        } else {
+            Account account = new Account.Builder(command.getCurrency(), command.getAccountType())
+                    .build();
+
+            user.getAccounts().add(account);
+            user.addNewAccountTransaction(command);
         }
-        //DELETE THIS AT THE END
-
-        Account account = new Account.Builder(command.getCurrency(), command.getAccountType())
-                .build();
-
-        user.getAccounts().add(account);
-        user.addNewAccountTransaction(command);
     }
 
     /**
@@ -200,6 +248,60 @@ public class BankingSystem {
             for (Account account: user.getAccounts()) {
                 if (account.getAccountIBAN().equals(accountIBAN)) {
                     return user;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param cardNr
+     * @return
+     */
+    private User findUserOfAccountOfCard(final String cardNr) {
+        for (User user : users) {
+            for (Account account: user.getAccounts()) {
+                for (Card card : account.getCards()) {
+                    if (card.getNumber().equals(cardNr)) {
+                        return user;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param cardNr
+     * @return
+     */
+    private Account findAccountOfCard(final String cardNr) {
+        for (User user : users) {
+            for (Account account: user.getAccounts()) {
+                for (Card card : account.getCards()) {
+                    if (card.getNumber().equals(cardNr)) {
+                        return account;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param cardNr
+     * @return
+     */
+    private Card findCard(final String cardNr) {
+        for (User user : users) {
+            for (Account account: user.getAccounts()) {
+                for (Card card : account.getCards()) {
+                    if (card.getNumber().equals(cardNr)) {
+                        return card;
+                    }
                 }
             }
         }
@@ -236,6 +338,20 @@ public class BankingSystem {
         return null;
     }
 
+    private void buildJsonDeleteAccount(final CommandInput command, final ObjectNode objectNode) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        objectNode.put("command", "deleteAccount");
+
+        ObjectNode outputArray = mapper.createObjectNode();
+        outputArray.put("success", "Account deleted");
+        outputArray.put("timestamp", command.getTimestamp());
+
+        objectNode.set("output", outputArray);
+
+        objectNode.put("timestamp", command.getTimestamp());
+    }
+
     /**
      *
      * @param objectNode
@@ -265,6 +381,8 @@ public class BankingSystem {
      * @param users
      */
     public void setUsers(final UserInput[] users) {
+        this.users = new ArrayList<>();
+
         for (UserInput user : users) {
             User customer = new User(user);
             this.users.add(customer);
@@ -276,9 +394,29 @@ public class BankingSystem {
      * @param exchangeRates
      */
     public void setExchangeRates(final ExchangeInput[] exchangeRates) {
+        this.exchangeRates = new ArrayList<>();
+
         for (ExchangeInput exchangeRate : exchangeRates) {
             ExchangeRate rate = new ExchangeRate(exchangeRate);
             this.exchangeRates.add(rate);
         }
     }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
+    public List<ExchangeRate> getExchangeRates() {
+        return exchangeRates;
+    }
+
+    public void setExchangeRates(List<ExchangeRate> exchangeRates) {
+        this.exchangeRates = exchangeRates;
+    }
 }
+
+
