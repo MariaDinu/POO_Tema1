@@ -24,8 +24,13 @@ public class OnlinePayment implements PaymentStrategy {
     }
 
     /**
+     * Executes the online payment using the banking system instance to update objects.
      *
-     * @param bankingSystem
+     * This method checks the account balance, processes the payment if sufficient funds
+     * are available, or logs an insufficient funds transaction. It also replaces one-time
+     * cards after payment.
+     *
+     * @param bankingSystem the banking system instance to execute the payment and update objects.
      */
     @Override
     public void pay(final BankingSystem bankingSystem) {

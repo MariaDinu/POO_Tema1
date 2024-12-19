@@ -20,48 +20,54 @@ public class ExchangeRate {
     }
 
     /**
+     * Returns the source currency of the exchange rate.
      *
-     * @return
+     * @return the source currency.
      */
     public String getFrom() {
         return from;
     }
 
     /**
+     * Sets the source currency of the exchange rate.
      *
-     * @param from
+     * @param from the source currency.
      */
     public void setFrom(final String from) {
         this.from = from;
     }
 
     /**
+     * Returns the target currency of the exchange rate.
      *
-     * @return
+     * @return the target currency.
      */
     public String getTo() {
         return to;
     }
 
     /**
+     * Sets the target currency of the exchange rate.
      *
-     * @param to
+     * @param to the target currency.
      */
     public void setTo(final String to) {
         this.to = to;
     }
 
     /**
+     * Returns the conversion rate from the source currency to the target currency.
      *
-     * @return
+     * @return the conversion rate.
      */
     public double getRate() {
         return rate;
     }
 
     /**
+     * Sets the conversion rate from the source currency to the target currency.
      *
-     * @param rate
+     * @param rate the new conversion rate.
      */
     public void setRate(final double rate) {
         this.rate = rate;

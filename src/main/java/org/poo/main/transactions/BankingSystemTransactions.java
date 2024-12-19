@@ -17,9 +17,10 @@ public class BankingSystemTransactions {
     }
 
     /**
+     * Prints the transactions for a user up to the specified timestamp.
      *
-     * @param command
-     * @param objectNode
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the JSON response.
      */
     public void printTransactions(final CommandInput command, final ObjectNode objectNode) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -38,8 +39,9 @@ public class BankingSystemTransactions {
     }
 
     /**
+     * Constructs a JSON response to print all users in the banking system.
      *
-     * @param objectNode
+     * @param objectNode the objectNod} to store the JSON response.
      */
     public void buildJsonPrintUsers(final ObjectNode objectNode) {
         ObjectMapper mapper = new ObjectMapper();
@@ -62,9 +64,10 @@ public class BankingSystemTransactions {
     }
 
     /**
+     * Constructs a JSON response for a failed account deletion due to non-zero balance.
      *
-     * @param command
-     * @param objectNode
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the JSON response.
      */
     public void buildJsonDeleteAccountForNonZeroBalance(final CommandInput command,
                                                         final ObjectNode objectNode) {
@@ -83,9 +86,10 @@ public class BankingSystemTransactions {
     }
 
     /**
+     * Constructs a JSON response for a successful account deletion.
      *
-     * @param command
-     * @param objectNode
+     * @param command the command containing the parameneters.
+     * @param objectNode the objectNode to store the JSON response.
      */
     public void buildJsonDeleteAccount(final CommandInput command, final ObjectNode objectNode) {
         ObjectMapper mapper = new ObjectMapper();
@@ -102,10 +106,11 @@ public class BankingSystemTransactions {
     }
 
     /**
+     * Constructs a JSON response for a failed online payment due to a missing card.
      *
-     * @param command
-     * @param objectNode
-     * @param output
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the JSON response.
+     * @param output the output to accumulate JSON responses.
      */
     public void buildJsonPayOnlineCardNotFound(final CommandInput command,
                                                final ObjectNode objectNode,
@@ -126,9 +131,10 @@ public class BankingSystemTransactions {
     }
 
     /**
+     * Constructs a JSON response for card status due to a missing card.
      *
-     * @param command
-     * @param objectNode
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the JSON response.
      */
     public void buildJsonCardStatusNotFound(final CommandInput command,
                                             final ObjectNode objectNode) {
@@ -146,9 +152,11 @@ public class BankingSystemTransactions {
     }
 
     /**
+     * Constructs a JSON response for an unsupported interest rate change operation, due to the
+     * account not being a savings account.
      *
-     * @param command
-     * @param objectNode
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the JSON response.
      */
     public void buildJsonChangeInterestRateNotSavings(final CommandInput command,
                                                       final ObjectNode objectNode) {
@@ -166,9 +174,11 @@ public class BankingSystemTransactions {
     }
 
     /**
+     * Constructs a JSON response for an unsupported add interest operation, due to the
+     * account not being a savings account.
      *
-     * @param command
-     * @param objectNode
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the JSON response.
      */
     public void buildJsonChangeAddInterestNotSavings(final CommandInput command,
                                                      final ObjectNode objectNode) {
@@ -186,9 +196,10 @@ public class BankingSystemTransactions {
     }
 
     /**
+     * Constructs a JSON response for a missing account.
      *
-     * @param command
-     * @param objectNode
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the JSON response.
      */
     public void buildJsonAccountNotFound(final CommandInput command,
                                          final ObjectNode objectNode) {

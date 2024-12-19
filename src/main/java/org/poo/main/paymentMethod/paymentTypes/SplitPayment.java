@@ -16,8 +16,14 @@ public class SplitPayment implements PaymentStrategy {
     }
 
     /**
+     * Executes the split payment using the banking system instance to update objects.
      *
-     * @param bankingSystem
+     * This method splits the total payment amount equally among the specified accounts,
+     * checks each account's balance, and processes the payment if all accounts can pay
+     * their share. If any account has insufficient funds, an error is logged for each
+     * account involved.
+     *
+     * @param bankingSystem the banking system instance to execute the payment and update objects.
      */
     @Override
     public void pay(final BankingSystem bankingSystem) {

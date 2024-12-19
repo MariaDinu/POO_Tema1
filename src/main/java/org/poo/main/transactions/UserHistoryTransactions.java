@@ -18,8 +18,10 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs a new account creation transaction into the user's transaction history.
      *
-     * @param command
+     * @param command the command containing the parameters.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addNewAccountTransaction(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
@@ -33,9 +35,11 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs a new card creation transaction into the user's transaction history.
      *
-     * @param command
-     * @param card
+     * @param command the command containing the parameters.
+     * @param card the card associated with the transaction.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addNewCardTransaction(final CommandInput command, final Card card) {
         ObjectMapper mapper = new ObjectMapper();
@@ -52,8 +56,11 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs an online payment failure due to insufficient funds into the user's transaction
+     * history.
      *
-     * @param command
+     * @param command the command containing the parameters.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addPayOnlineInsufficientFunds(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
@@ -67,8 +74,10 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs a split payment transaction into the user's transaction history.
      *
-     * @param command
+     * @param command the command containing the parameters.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addSplitPaymentTransaction(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
@@ -94,9 +103,13 @@ public class UserHistoryTransactions {
     }
 
     /**
-     * @param command
-     * @param accounts
-     * @param accountIBAN
+     * Logs an error for a failed split payment transaction due to insufficient funds into the
+     * user's transaction history.
+     *
+     * @param command the command containing the parameters.
+     * @param accounts the list of accounts involved in the transaction.
+     * @param accountIBAN the account that failed the transaction.
+     * @return an objectNode representing the error transaction.
      */
     public ObjectNode addSplitPaymentError(final CommandInput command, final List<String> accounts,
                                            final String accountIBAN) {
@@ -125,8 +138,10 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs an interest rate change transaction into the user's transaction history.
      *
-     * @param command
+     * @param command the command containing the parameters.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addInterestRateChanged(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
@@ -141,8 +156,11 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs a failed money transfer transaction due to insufficient funds into the
+     * user's transaction history.
      *
-     * @param command
+     * @param command the command containing the parameters.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addSendMoneyInsufficientFunds(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
@@ -156,8 +174,10 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs a card frozen check transaction into the user's transaction history.
      *
-     * @param command
+     * @param command the command containing the parameters.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addCardIsFrozenCheck(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
@@ -172,8 +192,10 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs a card frozen transaction into the user's transaction history.
      *
-     * @param command
+     * @param command the command containing the parameters.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addCardIsFrozen(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
@@ -187,9 +209,11 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs an online payment transaction into the user's transaction history.
      *
-     * @param command
-     * @param pay
+     * @param command the command containing the parameters.
+     * @param pay the amount paid.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addPayOnlinePayment(final CommandInput command, final double pay) {
         ObjectMapper mapper = new ObjectMapper();
@@ -205,10 +229,12 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs a money transfer transaction for the sender into the user's transaction history.
      *
-     * @param command
-     * @param sender
-     * @param receiver
+     * @param command the command containing the parameters.
+     * @param sender the sender's account.
+     * @param receiver the receiver's account.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addSendMoneyTransaction(final CommandInput command, final Account sender,
                                               final Account receiver) {
@@ -227,10 +253,13 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs a money transfer transaction for the receiver into the user's transaction history.
      *
-     * @param command
-     * @param sender
-     * @param receiver
+     * @param command the command containing the parameters.
+     * @param sender  the sender's account.
+     * @param receiver the receiver's account.
+     * @param rate the exchange rate applied to the transaction.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addReceiveMoneyTransaction(final CommandInput command, final Account sender,
                                                  final Account receiver, final double rate) {
@@ -249,11 +278,13 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs a new card creation transaction into the user's transaction history.
      *
-     * @param timestamp
-     * @param card
-     * @param account
-     * @param sentUser
+     * @param timestamp the timestamp of the transaction.
+     * @param card the card created.
+     * @param account the account associated with the card.
+     * @param sentUser the user owning the card.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addNewCardTransaction(final int timestamp, final Card card,
                                             final Account account, final User sentUser) {
@@ -271,9 +302,11 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs an error indicating that an account with a non-zero balance could not be deleted
+     * into the user's transaction history.
      *
-     * @param command
-     * @return
+     * @param command the command containing the parameters.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addBalanceNonZero(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
@@ -288,12 +321,13 @@ public class UserHistoryTransactions {
     }
 
     /**
+     * Logs a card deletion transaction into the user's transaction history.
      *
-     * @param command
-     * @param sentUser
-     * @param account
-     * @param card
-     * @return
+     * @param command the command containing the parameters.
+     * @param sentUser the user owning the card.
+     * @param account the acount associated with the card.
+     * @param card the card that was destroyed.
+     * @return an objectNode representing the transaction.
      */
     public ObjectNode addDeleteCardTransaction(final CommandInput command, final User sentUser,
                                                final Account account, final Card card) {

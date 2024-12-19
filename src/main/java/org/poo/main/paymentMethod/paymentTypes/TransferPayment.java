@@ -16,8 +16,13 @@ public class TransferPayment implements PaymentStrategy {
     }
 
     /**
+     * Executes the transfer payment using the banking system instance to update objects.
      *
-     * @param bankingSystem
+     * This method checks the sender's account balance, processes the transfer if
+     * sufficient funds are available, or logs an insufficient funds transaction.
+     * It updates both sender and receiver account balances and transaction histories.
+     *
+     * @param bankingSystem the banking system instance to execute the payment and update objects.
      */
     @Override
     public void pay(final BankingSystem bankingSystem) {

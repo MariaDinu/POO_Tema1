@@ -18,12 +18,13 @@ public class ClassicAccount extends Account {
     }
 
     /**
+     * Generates a spending report for the account based on the specified command and time range.
      *
-     * @param command
-     * @param objectNode
-     * @param output
-     * @param account
-     * @param bankingSystem
+     * @param command the input command containing parameters for the report.
+     * @param objectNode the JSON object node to store the command output.
+     * @param output the JSON array node to accumulate output.
+     * @param account the account for which the spending report is generated.
+     * @param bankingSystem the banking system for verification and updates..
      */
     public void printSpendingReport(final CommandInput command,
                                     final ObjectNode objectNode,
@@ -74,11 +75,12 @@ public class ClassicAccount extends Account {
     };
 
     /**
+     * Adds interest to the account. This method is not applicable to classic accounts.
      *
-     * @param command
-     * @param objectNode
-     * @param output
-     * @param transactions
+     * @param command the input command containing parameters.
+     * @param objectNode the JSON object node to store the command output.
+     * @param output the JSON array node to accumulate output.
+     * @param transactions the banking system transactions instance to build a transaction.
      */
     public void addInterest(final CommandInput command, final ObjectNode objectNode,
                             final ArrayNode output,
@@ -88,13 +90,15 @@ public class ClassicAccount extends Account {
     }
 
     /**
+     * Changes the interest rate for the account. This method is not applicable to
+     * classic accounts.
      *
-     * @param command
-     * @param objectNode
-     * @param output
-     * @param transactions
-     * @param account
-     * @param bankingSystem
+     * @param command the input command containing the parameters.
+     * @param objectNode the JSON object node to store the command output.
+     * @param output the JSON array node to accumulate output.
+     * @param transactions the banking system transactions instance to build a transaction.
+     * @param account the account for which the interest rate is changed.
+     * @param bankingSystem the banking system instance for verification and updates.
      */
     public void changeInterestRate(final CommandInput command, final ObjectNode objectNode,
                                    final ArrayNode output,
@@ -106,8 +110,9 @@ public class ClassicAccount extends Account {
     }
 
     /**
+     * Returns the type of the account as a string.
      *
-     * @return
+     * @return the type of the account, which is "classic".
      */
     public String getType() {
         return "classic";

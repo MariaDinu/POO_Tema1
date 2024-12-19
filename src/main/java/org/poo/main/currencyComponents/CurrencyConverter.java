@@ -12,8 +12,13 @@ public class CurrencyConverter {
     private Map<String, List<ExchangeRate>> graph = new HashMap<>();
 
     /**
+     * Constructs a graph of exchange rates from the provided list.
      *
-     * @param exchangeRates
+     * Each currency is represented as a node in the graph, and exchange rates
+     * are represented as directed edges between the nodes. For each rate, a reverse
+     * rate is also added to the graph.
+     *
+     * @param exchangeRates a list representing the exchange rates.
      */
     public void constructGraph(final List<ExchangeRate> exchangeRates) {
         for (ExchangeRate rate : exchangeRates) {
@@ -26,11 +31,12 @@ public class CurrencyConverter {
     }
 
     /**
+     * Computes the conversion rate from one currency to another.
      *
-     * @param from
-     * @param to
-     * @param visited
-     * @return
+     * @param from the source currency.
+     * @param to the target currency.
+     * @param visited a set of visited currencies to avoid cycles in the graph.
+     * @return the conversion rate, or 0 if no path exists.
      */
     public double getRate(final String from, final String to, final Set<String> visited) {
         if (!graph.containsKey(from)) {
@@ -56,10 +62,11 @@ public class CurrencyConverter {
     }
 
     /**
+     * Computes the conversion rate from one currency to another.
      *
-     * @param from
-     * @param to
-     * @return
+     * @param from the source currency.
+     * @param to the target currency.
+     * @return the conversion rate, or 0 if no path exists.
      */
     public double getRate(final String from, final String to) {
         return getRate(from, to, new HashSet<>());

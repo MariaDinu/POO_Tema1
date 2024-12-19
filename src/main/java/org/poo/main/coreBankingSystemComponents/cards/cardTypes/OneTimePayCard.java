@@ -11,8 +11,9 @@ public class OneTimePayCard extends Card {
     }
 
     /**
+     * Sets whether the card has been used for payment.
      *
-     * @param statement
+     * @param statement a boolean indicating the payment state.
      */
     @Override
     public void setHasPayed(final boolean statement) {
@@ -20,8 +21,9 @@ public class OneTimePayCard extends Card {
     }
 
     /**
+     * Returns whether the card has been used for payment.
      *
-     * @return
+     * @return true if the card has been used for payment, otherwise false.
      */
     @Override
     public boolean getHasPayed() {

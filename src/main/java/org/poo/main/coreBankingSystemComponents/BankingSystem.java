@@ -33,8 +33,9 @@ public class BankingSystem {
     public BankingSystem() { }
 
     /**
-     * Singleton instance
-     * @return the instance
+     * Retrieves the singleton instance of the banking system.
+     *
+     * @return the singleton instance of the banking system.
      */
     public static BankingSystem getInstance() {
         if (instance == null) {
@@ -44,9 +45,10 @@ public class BankingSystem {
     }
 
     /**
+     * Processes an array of commands and generates the corresponding output.
      *
-     * @param commands
-     * @param output
+     * @param commands the array of command to be processed.
+     * @param output the arrayNode to store the output of the commands.
      */
     public void doCommands(final CommandInput[] commands, final ArrayNode output) {
         ObjectMapper mapper = new ObjectMapper();
@@ -139,19 +141,18 @@ public class BankingSystem {
         }
     }
 
-
     /**
+     * Adds interest to an account.
      *
-     * @param command
-     * @param objectNode
-     * @param output
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the response.
+     * @param output the arrayNode to store the output.
      */
     public void addInterest(final CommandInput command, final ObjectNode objectNode,
                              final ArrayNode output) {
         Account account = findAccount(command.getAccount());
 
         if (account == null) {
-            System.out.println("NU S A GASIT ACCOUNT LA ADDINTERESTRATE");
             return;
         }
 
@@ -159,10 +160,11 @@ public class BankingSystem {
     }
 
     /**
+     * Changes the interest rate of an account.
      *
-     * @param command
-     * @param objectNode
-     * @param output
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the response.
+     * @param output the arrayNode to store the output.
      */
     public void changeInterestRate(final CommandInput command, final ObjectNode objectNode,
                                  final ArrayNode output) {
@@ -176,8 +178,11 @@ public class BankingSystem {
     }
 
     /**
+     * Checks the status of a card and updates its state if necessary.
      *
-     * @param command
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the response.
+     * @param output the arrayNode to store the output.
      */
     public void checkCardStatus(final CommandInput command, final ObjectNode objectNode,
                                  final ArrayNode output) {
@@ -205,9 +210,11 @@ public class BankingSystem {
     }
 
     /**
+     * Generates a spending report for a specified account.
      *
-     * @param command
-     * @param objectNode
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the response.
+     * @param output the arrayNode to store the output.
      */
     public void spendingReport(final CommandInput command, final ObjectNode objectNode,
                                 final ArrayNode output) {
@@ -222,9 +229,11 @@ public class BankingSystem {
     }
 
     /**
+     * Generates a detailed report for a specified account over a time range.
      *
-     * @param command
-     * @param objectNode
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the response.
+     * @param output the arrayNode to store the output.
      */
     public void report(final CommandInput command, final ObjectNode objectNode,
                         final ArrayNode output) {
@@ -261,8 +270,9 @@ public class BankingSystem {
     }
 
     /**
+     * Sets an alias for a specified account.
      *
-     * @param command
+     * @param command the command containing the parameters.
      */
     public void setAlias(final CommandInput command) {
         Account account = findAccount(command.getAccount());
@@ -270,8 +280,9 @@ public class BankingSystem {
     }
 
     /**
+     * Processes a split payment transaction.
      *
-     * @param command
+     * @param command the command containing the parameters.
      */
     public void splitPayment(final CommandInput command) {
         PaymentSystem paymentSystem = new PaymentSystem(this);
@@ -280,8 +291,9 @@ public class BankingSystem {
     }
 
     /**
+     * Processes a money transfer transaction.
      *
-     * @param command
+     * @param command the command containing the parameters.
      */
     public void sendMoney(final CommandInput command) {
         Account sender = findAccount(command.getAccount());
@@ -298,10 +310,11 @@ public class BankingSystem {
     }
 
     /**
+     * Processes a card payment transaction.
      *
-     * @param command
-     * @param objectNode
-     * @param output
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the response.
+     * @param output the arrayNode to store the output.
      */
     public void payOnline(final CommandInput command, final ObjectNode objectNode,
                            final ArrayNode output) {
@@ -327,9 +340,11 @@ public class BankingSystem {
     }
 
     /**
+     * Creates a card of the specified type and associates it with an account.
      *
-     * @param type
-     * @param account
+     * @param type  the type of card to create.
+     * @param timestamp the timestamp of the card creation.
+     * @param account the account to associate the card with.
      */
     public void createCard(final String type, final int timestamp, final Account account) {
         Card card = CardFactory.createCard(type);
@@ -344,9 +359,10 @@ public class BankingSystem {
     }
 
     /**
+     * Creates a card of the specified type using command input and associates it with an account.
      *
-     * @param type
-     * @param command
+     * @param type the type of card to create.
+     * @param command the command containing the parameters.
      */
     public void createCard(final String type, final CommandInput command) {
         if (!command.getEmail().equals(findUserOfAccount(command.getAccount()).getEmail())) {
@@ -364,8 +380,10 @@ public class BankingSystem {
     }
 
     /**
+     * Deletes a one-time card from the account it is associated with.
      *
-     * @param card
+     * @param command the command containing the parameters.
+     * @param card the card to be deleted.
      */
     public void deleteOneTimeCard(final CommandInput command, final Card card) {
         Account account = findAccountOfCard(card.getNumber());
@@ -378,8 +396,9 @@ public class BankingSystem {
     }
 
     /**
+     * Deletes a card specified by the command input.
      *
-     * @param command
+     * @param command the command containing the parameters.
      */
     public void deleteCard(final CommandInput command) {
         if (findCard(command.getCardNumber()) == null) {
@@ -399,9 +418,11 @@ public class BankingSystem {
     }
 
     /**
+     * Deletes an account specified by the command input.
+     * If the account balance is non-zero, it logs an error and does not delete the account.
      *
-     * @param command
-     * @param objectNode
+     * @param command the command containing the parameters.
+     * @param objectNode the objectNode to store the response.
      */
     public void deleteAccount(final CommandInput command, final ObjectNode objectNode) {
         User user = findUser(command.getEmail());
@@ -419,9 +440,10 @@ public class BankingSystem {
     }
 
     /**
+     * Adds funds to a specified account.
      *
-     * @param accountIBAN
-     * @param amount
+     * @param accountIBAN the IBAN of the account to which funds will be added.
+     * @param amount the amount to be added to the account.
      */
     public void addFunds(final String accountIBAN, final double amount) {
         Account account = findAccount(accountIBAN);
@@ -429,8 +451,9 @@ public class BankingSystem {
     }
 
     /**
+     * Sets the minimum balance for a specified account.
      *
-     * @param command
+     * @param command the command containing the parameters.
      */
     public void setMinimumBalance(final CommandInput command) {
         Account account = findAccount(command.getAccount());
@@ -438,8 +461,9 @@ public class BankingSystem {
     }
 
     /**
+     * Adds a new account for a user based on the command details.
      *
-     * @param command
+     * @param command the command containing the parameters.
      */
     public void addAccount(final CommandInput command) {
         User user = findUser(command.getEmail());
@@ -455,9 +479,10 @@ public class BankingSystem {
     }
 
     /**
+     * Finds the user associated with a specific account IBAN.
      *
-     * @param accountIBAN
-     * @return
+     * @param accountIBAN the IBAN of the account.
+     * @return the user associated with the account, or null if not found.
      */
     public User findUserOfAccount(final String accountIBAN) {
         for (User user : users) {
@@ -471,9 +496,10 @@ public class BankingSystem {
     }
 
     /**
+     * Finds the user associated with a specific card number.
      *
-     * @param cardNr
-     * @return
+     * @param cardNr the card number.
+     * @return the user associated with the card, or null if not found.
      */
     public User findUserOfAccountOfCard(final String cardNr) {
         for (User user : users) {
@@ -489,9 +515,10 @@ public class BankingSystem {
     }
 
     /**
+     * Finds the account associated with a specific card number.
      *
-     * @param cardNr
-     * @return
+     * @param cardNr the card number.
+     * @return the account associated with the card, or null if not found.
      */
     public Account findAccountOfCard(final String cardNr) {
         for (User user : users) {
@@ -507,9 +534,10 @@ public class BankingSystem {
     }
 
     /**
+     * Finds the card based on its number.
      *
-     * @param cardNr
-     * @return
+     * @param cardNr the card number.
+     * @return the card with the specified number, or null if not found.
      */
     public Card findCard(final String cardNr) {
         for (User user : users) {
@@ -525,9 +553,10 @@ public class BankingSystem {
     }
 
     /**
+     * Finds the user based on their email address.
      *
-     * @param email
-     * @return
+     * @param email the email address of the user.
+     * @return the user with the specified email, or null if not found.
      */
     public User findUser(final String email) {
         for (User user : users) {
@@ -539,15 +568,16 @@ public class BankingSystem {
     }
 
     /**
+     * Finds the account based on its IBAN or alias.
      *
-     * @param accountIBAN
-     * @return
+     * @param accountIBANOrAlias the IBAN or alias of the account.
+     * @return the account with the specified IBAN or alias, or null if not found.
      */
-    public Account findAccount(final String accountIBAN) {
+    public Account findAccount(final String accountIBANOrAlias) {
         for (User user : users) {
             for (Account account: user.getAccounts()) {
-                if (account.getAccountIBAN().equals(accountIBAN)
-                        || account.getAlias().equals(accountIBAN)) {
+                if (account.getAccountIBAN().equals(accountIBANOrAlias)
+                        || account.getAlias().equals(accountIBANOrAlias)) {
                     return account;
                 }
             }
@@ -556,8 +586,9 @@ public class BankingSystem {
     }
 
     /**
+     * Sets the list of users in the banking system from an array of user inputs.
      *
-     * @param users
+     * @param users the array of user objects to initialize users.
      */
     public void setUsers(final UserInput[] users) {
         this.users = new ArrayList<>();
@@ -569,8 +600,9 @@ public class BankingSystem {
     }
 
     /**
+     * Sets the list of exchange rates in the banking system from an array of exchange inputs.
      *
-     * @param exchangeRates
+     * @param exchangeRates the array of exchange input objects to initialize exchange rates.
      */
     public void setExchangeRates(final ExchangeInput[] exchangeRates) {
         this.exchangeRates = new ArrayList<>();
@@ -582,10 +614,11 @@ public class BankingSystem {
     }
 
     /**
+     * Retrieves the exchange rate between two currencies.
      *
-     * @param from
-     * @param to
-     * @return
+     * @param from the source currency code.
+     * @param to the target currency code.
+     * @return the exchange rate from the source to the target currency.
      */
     public double getExchangeRate(final String from, final String to) {
         CurrencyConverter converter = new CurrencyConverter();
@@ -595,32 +628,36 @@ public class BankingSystem {
     }
 
     /**
+     * Retrieves the list of users in the banking system.
      *
-     * @return
+     * @return a list of user objects.
      */
     public List<User> getUsers() {
         return users;
     }
 
     /**
+     * Sets the list of users in the banking system.
      *
-     * @param users
+     * @param users a list of user objects to be set.
      */
     public void setUsers(final List<User> users) {
         this.users = users;
     }
 
     /**
+     * Retrieves the list of exchange rates in the banking system.
      *
-     * @return
+     * @return a list of exchange rate objects.
      */
     public List<ExchangeRate> getExchangeRates() {
         return exchangeRates;
     }
 
     /**
+     * Sets the list of exchange rates in the banking system.
      *
-     * @param exchangeRates
+     * @param exchangeRates a list of exchange rate objects to be set.
      */
     public void setExchangeRates(final List<ExchangeRate> exchangeRates) {
         this.exchangeRates = exchangeRates;

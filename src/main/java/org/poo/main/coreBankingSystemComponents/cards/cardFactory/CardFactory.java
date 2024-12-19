@@ -6,9 +6,11 @@ import org.poo.main.coreBankingSystemComponents.cards.cardTypes.OneTimePayCard;
 
 public final class CardFactory {
     /**
+     * Creates a card of the specified type.
      *
-     * @param type
-     * @return
+     * @param type the type of card to create.
+     * @return an instance of the created card.
+     * @throws IllegalArgumentException if the provided card type is not recognized.
      */
     public static Card createCard(final String type) {
         switch (type) {

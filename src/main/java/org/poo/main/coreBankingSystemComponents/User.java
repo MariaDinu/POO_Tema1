@@ -30,8 +30,9 @@ public class User {
     }
 
     /**
+     * Builds a JSON representation of the user's accounts.
      *
-     * @return
+     * @return a JSON array node containing the account details.
      */
     public ArrayNode buildJsonAccounts() {
         ObjectMapper mapper = new ObjectMapper();
@@ -53,72 +54,81 @@ public class User {
     }
 
     /**
+     * Returns the first name of the user.
      *
-     * @return
+     * @return the first name.
      */
     public String getFirstName() {
         return firstName;
     }
 
     /**
+     * Sets the first name of the user.
      *
-     * @param firstName
+     * @param firstName the new first name.
      */
     public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
     /**
+     * Returns the last name of the user.
      *
-     * @return
+     * @return the last name.
      */
     public String getLastName() {
         return lastName;
     }
 
     /**
+     * Sets the last name of the user.
      *
-     * @param lastName
+     * @param lastName the new last name.
      */
     public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
     /**
+     * Returns the email of the user.
      *
-     * @return
+     * @return the email address.
      */
     public String getEmail() {
         return email;
     }
 
     /**
+     * Sets the email of the user.
      *
-     * @param email
+     * @param email the new email address.
      */
     public void setEmail(final String email) {
         this.email = email;
     }
 
     /**
+     * Returns the list of accounts associated with the user.
      *
-     * @return
+     * @return the list of accounts.
      */
     public List<Account> getAccounts() {
         return accounts;
     }
 
     /**
+     * Sets the list of accounts associated with the user.
      *
-     * @param accounts
+     * @param accounts the new list of accounts.
      */
     public void setAccounts(final List<Account> accounts) {
         this.accounts = accounts;
     }
 
     /**
+     * Returns the transaction history of the user.
      *
-     * @return
+     * @return the transaction history as a JSON array node.
      */
     public ArrayNode getTransactionHistory() {
         return transactionHistory;
