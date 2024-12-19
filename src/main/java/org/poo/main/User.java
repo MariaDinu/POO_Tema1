@@ -55,7 +55,7 @@ public class User {
      *
      * @param command
      */
-    public void addNewAccountTransaction(final CommandInput command) {
+    public ObjectNode addNewAccountTransaction(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newAccountNode = mapper.createObjectNode();
@@ -63,6 +63,7 @@ public class User {
         newAccountNode.put("description", "New account created");
 
         transactionHistory.add(newAccountNode);
+        return newAccountNode;
     }
 
     /**
@@ -70,7 +71,7 @@ public class User {
      * @param command
      * @param card
      */
-    public void addNewCardTransaction(final CommandInput command, final Card card) {
+    public ObjectNode addNewCardTransaction(final CommandInput command, final Card card) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newCardNode = mapper.createObjectNode();
@@ -81,13 +82,14 @@ public class User {
         newCardNode.put("account", command.getAccount());
 
         transactionHistory.add(newCardNode);
+        return newCardNode;
     }
 
     /**
      *
      * @param command
      */
-    public void addPayOnlineInsufficientFunds(final CommandInput command) {
+    public ObjectNode addPayOnlineInsufficientFunds(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newPayOnlineNode = mapper.createObjectNode();
@@ -95,13 +97,14 @@ public class User {
         newPayOnlineNode.put("description", "Insufficient funds");
 
         transactionHistory.add(newPayOnlineNode);
+        return newPayOnlineNode;
     }
 
     /**
      *
      * @param command
      */
-    public void addSplitPaymentTransaction(final CommandInput command) {
+    public ObjectNode addSplitPaymentTransaction(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newSplitPaymentNode = mapper.createObjectNode();
@@ -121,6 +124,7 @@ public class User {
         newSplitPaymentNode.set("involvedAccounts", involvedAccounts);
 
         transactionHistory.add(newSplitPaymentNode);
+        return newSplitPaymentNode;
     }
 
     /**
@@ -128,7 +132,7 @@ public class User {
      * @param accounts
      * @param accountIBAN
      */
-    public void addSplitPaymentError(final CommandInput command, final List<String> accounts,
+    public ObjectNode addSplitPaymentError(final CommandInput command, final List<String> accounts,
                                      final String accountIBAN) {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -151,13 +155,14 @@ public class User {
                 + " has insufficient funds for a split payment.");
 
         transactionHistory.add(newSplitPaymentNode);
+        return newSplitPaymentNode;
     }
 
     /**
      *
      * @param command
      */
-    public void addInterestRateChanged(final CommandInput command) {
+    public ObjectNode addInterestRateChanged(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newInterestRateNode = mapper.createObjectNode();
@@ -166,13 +171,14 @@ public class User {
                         + command.getInterestRate());
 
         transactionHistory.add(newInterestRateNode);
+        return newInterestRateNode;
     }
 
     /**
      *
      * @param command
      */
-    public void addSendMoneyInsufficientFunds(final CommandInput command) {
+    public ObjectNode addSendMoneyInsufficientFunds(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newPayOnlineNode = mapper.createObjectNode();
@@ -180,13 +186,14 @@ public class User {
         newPayOnlineNode.put("description", "Insufficient funds");
 
         transactionHistory.add(newPayOnlineNode);
+        return newPayOnlineNode;
     }
 
     /**
      *
      * @param command
      */
-    public void addCardIsFrozenCheck(final CommandInput command) {
+    public ObjectNode addCardIsFrozenCheck(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newFrozenCardNode = mapper.createObjectNode();
@@ -195,13 +202,14 @@ public class User {
                 "minimum amount of funds, the card will be frozen");
 
         transactionHistory.add(newFrozenCardNode);
+        return newFrozenCardNode;
     }
 
     /**
      *
      * @param command
      */
-    public void addCardIsFrozen(final CommandInput command) {
+    public ObjectNode addCardIsFrozen(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newFrozenCardNode = mapper.createObjectNode();
@@ -209,6 +217,7 @@ public class User {
         newFrozenCardNode.put("description", "The card is frozen");
 
         transactionHistory.add(newFrozenCardNode);
+        return newFrozenCardNode;
     }
 
     /**
@@ -216,7 +225,7 @@ public class User {
      * @param command
      * @param pay
      */
-    public void addPayOnlinePayment(final CommandInput command, final double pay) {
+    public ObjectNode addPayOnlinePayment(final CommandInput command, final double pay) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newPayOnlineNode = mapper.createObjectNode();
@@ -226,6 +235,7 @@ public class User {
         newPayOnlineNode.put("commerciant", command.getCommerciant());
 
         transactionHistory.add(newPayOnlineNode);
+        return newPayOnlineNode;
     }
 
     /**
@@ -234,7 +244,7 @@ public class User {
      * @param sender
      * @param receiver
      */
-    public void addSendMoneyTransaction(final CommandInput command, final Account sender,
+    public ObjectNode addSendMoneyTransaction(final CommandInput command, final Account sender,
                                         final Account receiver) {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -247,6 +257,29 @@ public class User {
         newSendMoneyNode.put("transferType", "sent");
 
         transactionHistory.add(newSendMoneyNode);
+        return newSendMoneyNode;
+    }
+
+    /**
+     *
+     * @param command
+     * @param sender
+     * @param receiver
+     */
+    public ObjectNode addReceiveMoneyTransaction(final CommandInput command, final Account sender,
+                                              final Account receiver, double rate) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newSendMoneyNode = mapper.createObjectNode();
+        newSendMoneyNode.put("timestamp", command.getTimestamp());
+        newSendMoneyNode.put("description", command.getDescription());
+        newSendMoneyNode.put("senderIBAN", sender.getAccountIBAN());
+        newSendMoneyNode.put("receiverIBAN", receiver.getAccountIBAN());
+        newSendMoneyNode.put("amount", command.getAmount() / rate + " " + receiver.getCurrency());
+        newSendMoneyNode.put("transferType", "received");
+
+        transactionHistory.add(newSendMoneyNode);
+        return newSendMoneyNode;
     }
 
     /**
@@ -256,7 +289,7 @@ public class User {
      * @param account
      * @param user
      */
-    public void addNewCardTransaction(final int timestamp, final Card card,
+    public ObjectNode addNewCardTransaction(final int timestamp, final Card card,
                                       final Account account, final User user) {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -268,9 +301,21 @@ public class User {
         newCardNode.put("account", account.getAccountIBAN());
 
         transactionHistory.add(newCardNode);
+        return newCardNode;
     }
 
-    public void addDeleteCardTransaction(final CommandInput command, final User user,
+    public ObjectNode addBalanceNonZero(final CommandInput command) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode deleteCardNode = mapper.createObjectNode();
+        deleteCardNode.put("timestamp", command.getTimestamp());
+        deleteCardNode.put("description", "Account couldn't be deleted - there are funds remaining");
+
+        transactionHistory.add(deleteCardNode);
+        return deleteCardNode;
+    }
+
+    public ObjectNode addDeleteCardTransaction(final CommandInput command, final User user,
                                          final Account account, final Card card) {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -282,6 +327,7 @@ public class User {
         deleteCardNode.put("account", account.getAccountIBAN());
 
         transactionHistory.add(deleteCardNode);
+        return deleteCardNode;
     }
 
     /**

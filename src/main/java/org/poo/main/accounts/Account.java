@@ -3,6 +3,7 @@ package org.poo.main.accounts;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.poo.fileio.CommandInput;
 import org.poo.main.cards.Card;
 import org.poo.utils.Utils;
 
@@ -19,6 +20,8 @@ public class Account {
     private String alias;
     private String type;
 
+    private ArrayNode transactionHistory;
+
     public static class Builder {
         private String currency;
         private double interestRate = 0;
@@ -28,13 +31,17 @@ public class Account {
         private double minBalance = 0;
         private String alias = "";
         private String type;
+        private ArrayNode transactionHistory;
 
         public Builder(final String currency, final String type) {
+            ObjectMapper objectMapper = new ObjectMapper();
+
             this.currency = currency;
             accountIBAN = Utils.generateIBAN();
             balance = 0;
             cards = new ArrayList<>();
             this.type = type;
+            transactionHistory = objectMapper.createArrayNode();
         }
 
         /**
@@ -85,6 +92,14 @@ public class Account {
         this.minBalance = builder.minBalance;
         this.alias = builder.alias;
         this.type = builder.type;
+        this.transactionHistory = builder.transactionHistory;
+    }
+
+    /**
+     *
+     */
+    public void addInterest() {
+        balance += balance * interestRate;
     }
 
     /**
@@ -233,6 +248,22 @@ public class Account {
      */
     public void setType(final String type) {
         this.type = type;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ArrayNode getTransactionHistory() {
+        return transactionHistory;
+    }
+
+    /**
+     *
+     * @param transactionHistory
+     */
+    public void setTransactionHistory(final ArrayNode transactionHistory) {
+        this.transactionHistory = transactionHistory;
     }
 
     /**

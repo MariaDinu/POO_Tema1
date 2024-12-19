@@ -40,7 +40,7 @@ public class CurrencyConverter {
             }
         }
 
-        return 0; // No path found
+        return 0;
     }
 
     /**
