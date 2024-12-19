@@ -1,9 +1,12 @@
-package org.poo.main.accounts;
+package org.poo.main.coreBankingSystemComponents.accounts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.main.cards.Card;
+import org.poo.fileio.CommandInput;
+import org.poo.main.coreBankingSystemComponents.BankingSystem;
+import org.poo.main.transactions.BankingSystemTransactions;
+import org.poo.main.coreBankingSystemComponents.cards.Card;
 import org.poo.utils.Utils;
 
 import java.util.ArrayList;
@@ -11,33 +14,60 @@ import java.util.List;
 
 public abstract class Account {
     private String currency;
-    //private double interestRate;
     private String accountIBAN;
     private double balance;
     private List<Card> cards;
     private double minBalance;
     private String alias;
-    //private String type;
     private ArrayNode transactionHistory;
 
     public Account(final String currency) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         this.currency = currency;
-        //this.interestRate = builder.interestRate;
         accountIBAN = Utils.generateIBAN();
         balance = 0;
         cards = new ArrayList<>();
         minBalance = 0;
         alias = "";
-        //this.type = builder.type;
         this.transactionHistory = objectMapper.createArrayNode();
     }
 
     /**
      *
+     * @param command
+     * @param objectNode
+     * @param output
+     * @param account
+     * @param bankingSystem
      */
-    public void addInterest() {}
+    public abstract void printSpendingReport(CommandInput command, ObjectNode objectNode,
+                                             ArrayNode output, Account account,
+                                             BankingSystem bankingSystem);
+
+    /**
+     *
+     * @param command
+     * @param objectNode
+     * @param output
+     * @param transactions
+     */
+    public abstract void addInterest(CommandInput command, ObjectNode objectNode,
+                                     ArrayNode output, BankingSystemTransactions transactions);
+
+    /**
+     *
+     * @param command
+     * @param objectNode
+     * @param output
+     * @param transactions
+     * @param account
+     * @param bankingSystem
+     */
+    public abstract void changeInterestRate(CommandInput command, ObjectNode objectNode,
+                                            ArrayNode output,
+                                            BankingSystemTransactions transactions,
+                                            Account account, BankingSystem bankingSystem);
 
     /**
      *
@@ -79,7 +109,9 @@ public abstract class Account {
      *
      * @return
      */
-    public double getInterestRate() { return 0.0; }
+    public double getInterestRate() {
+        return 0.0;
+    }
 
     /**
      *
@@ -173,24 +205,11 @@ public abstract class Account {
      */
     public abstract String getType();
 
-
-    //public void setType(final String type) {
-    //    this.type = type;
-    //}
-
     /**
      *
      * @return
      */
     public ArrayNode getTransactionHistory() {
         return transactionHistory;
-    }
-
-    /**
-     *
-     * @param transactionHistory
-     */
-    public void setTransactionHistory(final ArrayNode transactionHistory) {
-        this.transactionHistory = transactionHistory;
     }
 }

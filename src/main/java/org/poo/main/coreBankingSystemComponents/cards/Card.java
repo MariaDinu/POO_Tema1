@@ -1,4 +1,4 @@
-package org.poo.main.cards;
+package org.poo.main.coreBankingSystemComponents.cards;
 
 import org.poo.utils.Utils;
 
@@ -19,7 +19,7 @@ public abstract class Card {
      *
      * @param statement
      */
-    public abstract void setHasPayed(final boolean statement);
+    public abstract void setHasPayed(boolean statement);
 
     /**
      *
@@ -53,14 +53,6 @@ public abstract class Card {
 
     /**
      *
-     * @param number
-     */
-    public void setNumber(final String number) {
-        this.number = number;
-    }
-
-    /**
-     *
      * @return
      */
     public boolean isFrozen() {
@@ -73,21 +65,5 @@ public abstract class Card {
      */
     public void setFrozen(final boolean frozen) {
         this.frozen = frozen;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public boolean isWarning() {
-        return warning;
-    }
-
-    /**
-     *
-     * @param warning
-     */
-    public void setWarning(final boolean warning) {
-        this.warning = warning;
     }
 }

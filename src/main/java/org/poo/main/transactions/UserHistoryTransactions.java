@@ -1,18 +1,19 @@
-package org.poo.main;
+package org.poo.main.transactions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.fileio.CommandInput;
-import org.poo.main.accounts.Account;
-import org.poo.main.cards.Card;
+import org.poo.main.coreBankingSystemComponents.User;
+import org.poo.main.coreBankingSystemComponents.accounts.Account;
+import org.poo.main.coreBankingSystemComponents.cards.Card;
 
 import java.util.List;
 
 public class UserHistoryTransactions {
     private User user;
 
-    public UserHistoryTransactions(User user) {
+    public UserHistoryTransactions(final User user) {
         this.user = user;
     }
 
@@ -163,8 +164,8 @@ public class UserHistoryTransactions {
 
         ObjectNode newFrozenCardNode = mapper.createObjectNode();
         newFrozenCardNode.put("timestamp", command.getTimestamp());
-        newFrozenCardNode.put("description", "You have reached the " +
-                "minimum amount of funds, the card will be frozen");
+        newFrozenCardNode.put("description", "You have reached the "
+                + "minimum amount of funds, the card will be frozen");
 
         user.getTransactionHistory().add(newFrozenCardNode);
         return newFrozenCardNode;
@@ -232,7 +233,7 @@ public class UserHistoryTransactions {
      * @param receiver
      */
     public ObjectNode addReceiveMoneyTransaction(final CommandInput command, final Account sender,
-                                                 final Account receiver, double rate) {
+                                                 final Account receiver, final double rate) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newSendMoneyNode = mapper.createObjectNode();
@@ -252,35 +253,49 @@ public class UserHistoryTransactions {
      * @param timestamp
      * @param card
      * @param account
-     * @param user
+     * @param sentUser
      */
     public ObjectNode addNewCardTransaction(final int timestamp, final Card card,
-                                            final Account account, final User user) {
+                                            final Account account, final User sentUser) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newCardNode = mapper.createObjectNode();
         newCardNode.put("timestamp", timestamp);
         newCardNode.put("description", "New card created");
         newCardNode.put("card", card.getNumber());
-        newCardNode.put("cardHolder", user.getEmail());
+        newCardNode.put("cardHolder", sentUser.getEmail());
         newCardNode.put("account", account.getAccountIBAN());
 
-        user.getTransactionHistory().add(newCardNode);
+        sentUser.getTransactionHistory().add(newCardNode);
         return newCardNode;
     }
 
+    /**
+     *
+     * @param command
+     * @return
+     */
     public ObjectNode addBalanceNonZero(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode deleteCardNode = mapper.createObjectNode();
         deleteCardNode.put("timestamp", command.getTimestamp());
-        deleteCardNode.put("description", "Account couldn't be deleted - there are funds remaining");
+        deleteCardNode.put("description",
+                "Account couldn't be deleted - there are funds remaining");
 
         user.getTransactionHistory().add(deleteCardNode);
         return deleteCardNode;
     }
 
-    public ObjectNode addDeleteCardTransaction(final CommandInput command, final User user,
+    /**
+     *
+     * @param command
+     * @param sentUser
+     * @param account
+     * @param card
+     * @return
+     */
+    public ObjectNode addDeleteCardTransaction(final CommandInput command, final User sentUser,
                                                final Account account, final Card card) {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -288,10 +303,10 @@ public class UserHistoryTransactions {
         deleteCardNode.put("timestamp", command.getTimestamp());
         deleteCardNode.put("description", "The card has been destroyed");
         deleteCardNode.put("card", card.getNumber());
-        deleteCardNode.put("cardHolder", user.getEmail());
+        deleteCardNode.put("cardHolder", sentUser.getEmail());
         deleteCardNode.put("account", account.getAccountIBAN());
 
-        user.getTransactionHistory().add(deleteCardNode);
+        sentUser.getTransactionHistory().add(deleteCardNode);
         return deleteCardNode;
     }
 }

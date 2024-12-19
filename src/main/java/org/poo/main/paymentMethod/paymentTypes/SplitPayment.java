@@ -1,10 +1,10 @@
 package org.poo.main.paymentMethod.paymentTypes;
 
 import org.poo.fileio.CommandInput;
-import org.poo.main.BankingSystem;
-import org.poo.main.User;
-import org.poo.main.UserHistoryTransactions;
-import org.poo.main.accounts.Account;
+import org.poo.main.coreBankingSystemComponents.BankingSystem;
+import org.poo.main.coreBankingSystemComponents.User;
+import org.poo.main.transactions.UserHistoryTransactions;
+import org.poo.main.coreBankingSystemComponents.accounts.Account;
 import org.poo.main.paymentMethod.PaymentStrategy;
 
 public class SplitPayment implements PaymentStrategy {
@@ -15,8 +15,12 @@ public class SplitPayment implements PaymentStrategy {
         this.command = command;
     }
 
+    /**
+     *
+     * @param bankingSystem
+     */
     @Override
-    public void pay(BankingSystem bankingSystem) {
+    public void pay(final BankingSystem bankingSystem) {
         double amount = command.getAmount() / command.getAccounts().size();
         boolean canAllAccountsPay = true;
         String accountCantPay = "";
@@ -24,7 +28,8 @@ public class SplitPayment implements PaymentStrategy {
         for (String accountIBAN : command.getAccounts()) {
             Account account = bankingSystem.findAccount(accountIBAN);
 
-            double rate = bankingSystem.getExchangeRate(command.getCurrency(), account.getCurrency());
+            double rate = bankingSystem.getExchangeRate(command.getCurrency(),
+                    account.getCurrency());
             double pay = amount * rate;
 
             if (account.getBalance() < pay) {
@@ -37,7 +42,8 @@ public class SplitPayment implements PaymentStrategy {
             for (String accountIBAN : command.getAccounts()) {
                 Account account = bankingSystem.findAccount(accountIBAN);
 
-                double rate = bankingSystem.getExchangeRate(command.getCurrency(), account.getCurrency());
+                double rate = bankingSystem.getExchangeRate(command.getCurrency(),
+                        account.getCurrency());
                 double pay = amount * rate;
 
                 account.setBalance(account.getBalance() - pay);
@@ -45,7 +51,8 @@ public class SplitPayment implements PaymentStrategy {
                 User user = bankingSystem.findUserOfAccount(account.getAccountIBAN());
 
                 UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
-                account.getTransactionHistory().add(userHistory.addSplitPaymentTransaction(command));
+                account.getTransactionHistory()
+                        .add(userHistory.addSplitPaymentTransaction(command));
             }
         } else {
             for (String accountIBAN : command.getAccounts()) {
@@ -54,7 +61,9 @@ public class SplitPayment implements PaymentStrategy {
                 User user = bankingSystem.findUserOfAccount(accountIBAN);
 
                 UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
-                account.getTransactionHistory().add(userHistory.addSplitPaymentError(command, command.getAccounts(), accountCantPay));
+                account.getTransactionHistory()
+                        .add(userHistory.addSplitPaymentError(command,
+                                command.getAccounts(), accountCantPay));
             }
         }
     }

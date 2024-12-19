@@ -1,4 +1,4 @@
-package org.poo.main;
+package org.poo.main.currencyComponents;
 
 import org.poo.fileio.ExchangeInput;
 
@@ -19,45 +19,51 @@ public class ExchangeRate {
         this.rate = rate;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getFrom() {
         return from;
     }
 
-    public void setFrom(String from) {
+    /**
+     *
+     * @param from
+     */
+    public void setFrom(final String from) {
         this.from = from;
-    }
-
-    public String getTo() {
-        return to;
-    }
-
-    public void setTo(String to) {
-        this.to = to;
-    }
-
-    public double getRate() {
-        return rate;
-    }
-
-    public void setRate(double rate) {
-        this.rate = rate;
     }
 
     /**
      *
      * @return
      */
-    @Override
-    public String toString() {
-        return "ExchangeRate{"
-                + "from='"
-                + from
-                + '\''
-                + ", to='"
-                + to
-                + '\''
-                + ", rate="
-                + rate
-                + '}';
+    public String getTo() {
+        return to;
+    }
+
+    /**
+     *
+     * @param to
+     */
+    public void setTo(final String to) {
+        this.to = to;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public double getRate() {
+        return rate;
+    }
+
+    /**
+     *
+     * @param rate
+     */
+    public void setRate(final double rate) {
+        this.rate = rate;
     }
 }

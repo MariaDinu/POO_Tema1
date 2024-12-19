@@ -1,16 +1,18 @@
-package org.poo.main;
+package org.poo.main.transactions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.fileio.CommandInput;
+import org.poo.main.coreBankingSystemComponents.BankingSystem;
+import org.poo.main.coreBankingSystemComponents.User;
 
 public class BankingSystemTransactions {
 
     private BankingSystem bankingSystem;
 
-    public BankingSystemTransactions(BankingSystem bankingSystem) {
+    public BankingSystemTransactions(final BankingSystem bankingSystem) {
         this.bankingSystem = bankingSystem;
     }
 
@@ -23,7 +25,8 @@ public class BankingSystemTransactions {
         ObjectMapper objectMapper = new ObjectMapper();
         ArrayNode transactions = objectMapper.createArrayNode();
 
-        for (JsonNode jsonNode : bankingSystem.findUser(command.getEmail()).getTransactionHistory()) {
+        for (JsonNode jsonNode : bankingSystem.findUser(command.getEmail())
+                .getTransactionHistory()) {
             if (jsonNode.get("timestamp").asInt() <= command.getTimestamp()) {
                 transactions.add(jsonNode);
             }
@@ -70,7 +73,8 @@ public class BankingSystemTransactions {
         objectNode.put("command", "deleteAccount");
 
         ObjectNode outputArray = mapper.createObjectNode();
-        outputArray.put("error", "Account couldn't be deleted - see org.poo.transactions for details");
+        outputArray.put("error",
+                "Account couldn't be deleted - see org.poo.transactions for details");
         outputArray.put("timestamp", command.getTimestamp());
 
         objectNode.set("output", outputArray);

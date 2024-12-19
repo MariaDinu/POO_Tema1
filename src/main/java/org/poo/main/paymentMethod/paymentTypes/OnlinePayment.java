@@ -3,11 +3,11 @@ package org.poo.main.paymentMethod.paymentTypes;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.fileio.CommandInput;
-import org.poo.main.BankingSystem;
-import org.poo.main.User;
-import org.poo.main.UserHistoryTransactions;
-import org.poo.main.accounts.Account;
-import org.poo.main.cards.Card;
+import org.poo.main.coreBankingSystemComponents.BankingSystem;
+import org.poo.main.coreBankingSystemComponents.User;
+import org.poo.main.transactions.UserHistoryTransactions;
+import org.poo.main.coreBankingSystemComponents.accounts.Account;
+import org.poo.main.coreBankingSystemComponents.cards.Card;
 import org.poo.main.paymentMethod.PaymentStrategy;
 
 public class OnlinePayment implements PaymentStrategy {
@@ -23,8 +23,12 @@ public class OnlinePayment implements PaymentStrategy {
         this.output = output;
     }
 
+    /**
+     *
+     * @param bankingSystem
+     */
     @Override
-    public void pay(BankingSystem bankingSystem) {
+    public void pay(final BankingSystem bankingSystem) {
         Card card = bankingSystem.findCard(command.getCardNumber());
 
         double rate = bankingSystem.getExchangeRate(command.getCurrency(),

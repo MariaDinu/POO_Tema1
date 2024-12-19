@@ -1,8 +1,8 @@
-package org.poo.main.cards.cardFactory;
+package org.poo.main.coreBankingSystemComponents.cards.cardFactory;
 
-import org.poo.main.cards.Card;
-import org.poo.main.cards.cardTypes.ClassicCard;
-import org.poo.main.cards.cardTypes.OneTimePayCard;
+import org.poo.main.coreBankingSystemComponents.cards.Card;
+import org.poo.main.coreBankingSystemComponents.cards.cardTypes.ClassicCard;
+import org.poo.main.coreBankingSystemComponents.cards.cardTypes.OneTimePayCard;
 
 public final class CardFactory {
     /**

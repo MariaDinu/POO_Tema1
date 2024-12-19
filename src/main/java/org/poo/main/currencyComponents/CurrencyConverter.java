@@ -1,5 +1,11 @@
-package org.poo.main;
-import java.util.*;
+package org.poo.main.currencyComponents;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 public class CurrencyConverter {
 
@@ -14,7 +20,8 @@ public class CurrencyConverter {
             graph.putIfAbsent(rate.getFrom(), new ArrayList<>());
             graph.putIfAbsent(rate.getTo(), new ArrayList<>());
             graph.get(rate.getFrom()).add(rate);
-            graph.get(rate.getTo()).add(new ExchangeRate(rate.getTo(), rate.getFrom(), 1 / rate.getRate())); // Add reverse rate
+            graph.get(rate.getTo()).add(new ExchangeRate(rate.getTo(), rate.getFrom(),
+                    1 / rate.getRate()));
         }
     }
 
@@ -26,8 +33,13 @@ public class CurrencyConverter {
      * @return
      */
     public double getRate(final String from, final String to, final Set<String> visited) {
-        if (!graph.containsKey(from)) return 0; // If the currency doesn't exist in the graph
-        if (from.equals(to)) return 1; // Base case: converting to the same currency
+        if (!graph.containsKey(from)) {
+            return 0;
+        }
+
+        if (from.equals(to)) {
+            return 1;
+        }
 
         visited.add(from);
 

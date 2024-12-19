@@ -1,12 +1,11 @@
-package org.poo.main;
+package org.poo.main.coreBankingSystemComponents;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.fileio.CommandInput;
 import org.poo.fileio.UserInput;
-import org.poo.main.accounts.Account;
-import org.poo.main.cards.Card;
+import org.poo.main.coreBankingSystemComponents.accounts.Account;
+import org.poo.main.transactions.UserHistoryTransactions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,32 +116,11 @@ public class User {
         this.accounts = accounts;
     }
 
-    public ArrayNode getTransactionHistory() {
-        return transactionHistory;
-    }
-
-    public void setTransactionHistory(ArrayNode transactionHistory) {
-        this.transactionHistory = transactionHistory;
-    }
-
     /**
      *
      * @return
      */
-    @Override
-    public String toString() {
-        return "User{"
-                + "firstName='"
-                + firstName
-                + '\''
-                + ", lastName='"
-                + lastName
-                + '\''
-                + ", email='"
-                + email
-                + '\''
-                + ", accounts="
-                + accounts
-                + '}';
+    public ArrayNode getTransactionHistory() {
+        return transactionHistory;
     }
 }

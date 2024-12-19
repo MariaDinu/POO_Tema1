@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
 import org.poo.fileio.ObjectInput;
+import org.poo.main.coreBankingSystemComponents.BankingSystem;
 import org.poo.utils.Utils;
 
 import java.io.File;
@@ -75,10 +76,7 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
 
-
-        System.out.println("------------------Test-------------------");
-
-        //Reset Random
+        //reset Random
         Utils.resetRandom();
 
         //Singleton instance
@@ -92,7 +90,6 @@ public final class Main {
 
         //parse through commands
         bankingSystem.doCommands(inputData.getCommands(), output);
-
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);

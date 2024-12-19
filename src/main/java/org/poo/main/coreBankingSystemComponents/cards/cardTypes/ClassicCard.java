@@ -1,6 +1,6 @@
-package org.poo.main.cards.cardTypes;
+package org.poo.main.coreBankingSystemComponents.cards.cardTypes;
 
-import org.poo.main.cards.Card;
+import org.poo.main.coreBankingSystemComponents.cards.Card;
 
 public class ClassicCard extends Card {
 

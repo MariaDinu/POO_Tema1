@@ -1,10 +1,10 @@
-package org.poo.main.accounts.accountFactory;
+package org.poo.main.coreBankingSystemComponents.accounts.accountFactory;
 
-import org.poo.main.accounts.Account;
-import org.poo.main.accounts.accountTypes.ClassicAccount;
-import org.poo.main.accounts.accountTypes.SavingsAccount;
+import org.poo.main.coreBankingSystemComponents.accounts.Account;
+import org.poo.main.coreBankingSystemComponents.accounts.accountTypes.ClassicAccount;
+import org.poo.main.coreBankingSystemComponents.accounts.accountTypes.SavingsAccount;
 
-public class AccountFactory {
+public final class AccountFactory {
     /**
      *
      * @param type

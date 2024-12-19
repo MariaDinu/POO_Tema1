@@ -1,4 +1,4 @@
-package org.poo.main;
+package org.poo.main.coreBankingSystemComponents;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,24 +7,27 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.fileio.CommandInput;
 import org.poo.fileio.ExchangeInput;
 import org.poo.fileio.UserInput;
-import org.poo.main.accounts.Account;
-import org.poo.main.accounts.accountFactory.AccountFactory;
-import org.poo.main.cards.Card;
-import org.poo.main.cards.cardFactory.CardFactory;
+import org.poo.main.coreBankingSystemComponents.accounts.Account;
+import org.poo.main.coreBankingSystemComponents.accounts.accountFactory.AccountFactory;
+import org.poo.main.coreBankingSystemComponents.cards.Card;
+import org.poo.main.coreBankingSystemComponents.cards.cardFactory.CardFactory;
+import org.poo.main.currencyComponents.CurrencyConverter;
+import org.poo.main.currencyComponents.ExchangeRate;
 import org.poo.main.paymentMethod.paymentTypes.OnlinePayment;
 import org.poo.main.paymentMethod.PaymentSystem;
 import org.poo.main.paymentMethod.paymentTypes.SplitPayment;
 import org.poo.main.paymentMethod.paymentTypes.TransferPayment;
+import org.poo.main.transactions.BankingSystemTransactions;
+import org.poo.main.transactions.UserHistoryTransactions;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+
 
 public class BankingSystem {
     private static BankingSystem instance = null;
     private List<User> users;
     private List<ExchangeRate> exchangeRates;
-
-    private final List<ExchangeRate> currencyConverter = new ArrayList<>();
-
     private BankingSystemTransactions transactions = new BankingSystemTransactions(this);
 
     public BankingSystem() { }
@@ -152,12 +155,7 @@ public class BankingSystem {
             return;
         }
 
-        if (!account.getType().equals("savings")) {
-            transactions.buildJsonChangeAddInterestNotSavings(command, objectNode);
-            output.add(objectNode);
-        } else {
-            account.addInterest();
-        }
+        account.addInterest(command, objectNode, output, transactions);
     }
 
     /**
@@ -174,17 +172,7 @@ public class BankingSystem {
             return;
         }
 
-        if (!account.getType().equals("savings")) {
-            transactions.buildJsonChangeInterestRateNotSavings(command, objectNode);
-            output.add(objectNode);
-        } else {
-            account.setInterestRate(command.getInterestRate());
-            User user = findUserOfAccount(account.getAccountIBAN());
-
-            UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
-            account.getTransactionHistory().add(userHistory.addInterestRateChanged(command));
-        }
-
+        account.changeInterestRate(command, objectNode, output, transactions, account, this);
     }
 
     /**
@@ -223,12 +211,6 @@ public class BankingSystem {
      */
     public void spendingReport(final CommandInput command, final ObjectNode objectNode,
                                 final ArrayNode output) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        ArrayNode transactionsArray = objectMapper.createArrayNode();
-        ArrayNode commerciantsArray = objectMapper.createArrayNode();
-        ObjectNode outputArray = objectMapper.createObjectNode();
-
-        // Check if account exists
         if (findAccount(command.getAccount()) == null) {
             transactions.buildJsonAccountNotFound(command, objectNode);
             output.add(objectNode);
@@ -236,51 +218,7 @@ public class BankingSystem {
         }
 
         Account account = findAccount(command.getAccount());
-
-        if (account.getType().equals("savings")) {
-            outputArray.put("error", "This kind of report is not supported for a saving account");
-            objectNode.put("command", command.getCommand());
-            objectNode.set("output", outputArray);
-            objectNode.put("timestamp", command.getTimestamp());
-            output.add(objectNode);
-            return;
-        }
-
-        outputArray.put("IBAN", account.getAccountIBAN());
-        outputArray.put("balance", account.getBalance());
-        outputArray.put("currency", account.getCurrency());
-
-        Map<String, Double> commerciantTotals = new TreeMap<>();
-
-        for (JsonNode jsonNode : findAccount(command.getAccount()).getTransactionHistory()) {
-            int timestamp = jsonNode.get("timestamp").asInt();
-            String description = jsonNode.get("description").asText();
-
-            if (timestamp <= command.getEndTimestamp() && timestamp >= command.getStartTimestamp()
-                    && "Card payment".equals(description)) {
-                double amount = jsonNode.get("amount").asDouble();
-                String commerciant = jsonNode.get("commerciant").asText();
-
-                transactionsArray.add(jsonNode);
-
-                commerciantTotals.put(commerciant, commerciantTotals.getOrDefault(commerciant, 0.0) + amount);
-            }
-        }
-
-        for (Map.Entry<String, Double> entry : commerciantTotals.entrySet()) {
-            ObjectNode commerciantNode = objectMapper.createObjectNode();
-            commerciantNode.put("commerciant", entry.getKey());
-            commerciantNode.put("total", entry.getValue());
-            commerciantsArray.add(commerciantNode);
-        }
-
-        outputArray.set("transactions", transactionsArray);
-        outputArray.set("commerciants", commerciantsArray);
-
-        objectNode.put("command", command.getCommand());
-        objectNode.set("output", outputArray);
-        objectNode.put("timestamp", command.getTimestamp());
-        output.add(objectNode);
+        account.printSpendingReport(command, objectNode, output, account, this);
     }
 
     /**
@@ -295,7 +233,6 @@ public class BankingSystem {
         ObjectNode outputArray = objectMapper.createObjectNode();
 
         if (findAccount(command.getAccount()) == null) {
-            //System.out.println("NU S A GASIT ACCOUNT FOR " + command.getAccount());
             transactions.buildJsonAccountNotFound(command, objectNode);
             output.add(objectNode);
             return;
@@ -307,8 +244,10 @@ public class BankingSystem {
         outputArray.put("currency", account.getCurrency());
 
         for (JsonNode jsonNode : findAccount(command.getAccount()).getTransactionHistory()) {
-            if (jsonNode.get("timestamp").asInt() <= command.getEndTimestamp() &&
-                    jsonNode.get("timestamp").asInt() >= command.getStartTimestamp()) {
+            int timestamp = jsonNode.get("timestamp").asInt();
+
+            if (timestamp <= command.getEndTimestamp()
+                    && timestamp >= command.getStartTimestamp()) {
                 transactionsArray.add(jsonNode);
             }
         }
@@ -370,17 +309,21 @@ public class BankingSystem {
 
         if (card == null) {
             transactions.buildJsonPayOnlineCardNotFound(command, objectNode, output);
-        } else if (card.isFrozen()) {
+            return;
+        }
+
+        if (card.isFrozen()) {
             User user = findUserOfAccountOfCard(card.getNumber());
             Account account = findAccountOfCard(card.getNumber());
 
             UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
             account.getTransactionHistory().add(userHistory.addCardIsFrozen(command));
-        } else {
-            PaymentSystem paymentSystem = new PaymentSystem(this);
-            paymentSystem.setPaymentStrategy(new OnlinePayment(command, objectNode, output));
-            paymentSystem.makePayment();
+            return;
         }
+
+        PaymentSystem paymentSystem = new PaymentSystem(this);
+        paymentSystem.setPaymentStrategy(new OnlinePayment(command, objectNode, output));
+        paymentSystem.makePayment();
     }
 
     /**
@@ -395,7 +338,9 @@ public class BankingSystem {
         User user = findUserOfAccount(account.getAccountIBAN());
 
         UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
-        account.getTransactionHistory().add(userHistory.addNewCardTransaction(timestamp, card, account, findUserOfAccount(account.getAccountIBAN())));
+        account.getTransactionHistory()
+                .add(userHistory.addNewCardTransaction(timestamp,
+                        card, account, findUserOfAccount(account.getAccountIBAN())));
     }
 
     /**
@@ -438,30 +383,37 @@ public class BankingSystem {
      */
     public void deleteCard(final CommandInput command) {
         if (findCard(command.getCardNumber()) == null) {
-            //CARDUL A FOST STERS DEJA
-            System.out.println("S a sters cardul oopsie");
-        } else {
-            User user = findUserOfAccountOfCard(command.getCardNumber());
-            Account account = findAccountOfCard(command.getCardNumber());
-            Card card = findCard(command.getCardNumber());
-
-            account.getCards().remove(card);
-
-            UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
-            account.getTransactionHistory()
-                    .add(userHistory.addDeleteCardTransaction(command, user, account, card));
+            return;
         }
+
+        User user = findUserOfAccountOfCard(command.getCardNumber());
+        Account account = findAccountOfCard(command.getCardNumber());
+        Card card = findCard(command.getCardNumber());
+
+        account.getCards().remove(card);
+
+        UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
+        account.getTransactionHistory()
+                .add(userHistory.addDeleteCardTransaction(command, user, account, card));
+
     }
+
+    /**
+     *
+     * @param command
+     * @param objectNode
+     */
     public void deleteAccount(final CommandInput command, final ObjectNode objectNode) {
         User user = findUser(command.getEmail());
         Account account = findAccount(command.getAccount());
-        UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
 
         if (account.getBalance() == 0.0) {
             user.getAccounts().remove(account);
             transactions.buildJsonDeleteAccount(command, objectNode);
         } else {
             transactions.buildJsonDeleteAccountForNonZeroBalance(command, objectNode);
+
+            UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
             account.getTransactionHistory().add(userHistory.addBalanceNonZero(command));
         }
     }
@@ -594,7 +546,8 @@ public class BankingSystem {
     public Account findAccount(final String accountIBAN) {
         for (User user : users) {
             for (Account account: user.getAccounts()) {
-                if (account.getAccountIBAN().equals(accountIBAN) || account.getAlias().equals(accountIBAN)) {
+                if (account.getAccountIBAN().equals(accountIBAN)
+                        || account.getAlias().equals(accountIBAN)) {
                     return account;
                 }
             }
@@ -641,19 +594,35 @@ public class BankingSystem {
         return converter.getRate(from, to);
     }
 
+    /**
+     *
+     * @return
+     */
     public List<User> getUsers() {
         return users;
     }
 
-    public void setUsers(List<User> users) {
+    /**
+     *
+     * @param users
+     */
+    public void setUsers(final List<User> users) {
         this.users = users;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<ExchangeRate> getExchangeRates() {
         return exchangeRates;
     }
 
-    public void setExchangeRates(List<ExchangeRate> exchangeRates) {
+    /**
+     *
+     * @param exchangeRates
+     */
+    public void setExchangeRates(final List<ExchangeRate> exchangeRates) {
         this.exchangeRates = exchangeRates;
     }
 }

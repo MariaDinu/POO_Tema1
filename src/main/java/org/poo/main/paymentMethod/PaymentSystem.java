@@ -1,24 +1,35 @@
 package org.poo.main.paymentMethod;
 
-import org.poo.main.BankingSystem;
+import org.poo.main.coreBankingSystemComponents.BankingSystem;
 
 public class PaymentSystem {
 
     private BankingSystem bankingSystem;
     private PaymentStrategy paymentStrategy;
 
-    public PaymentSystem(BankingSystem bankingSystem) {
+    public PaymentSystem(final BankingSystem bankingSystem) {
         this.bankingSystem = bankingSystem;
     }
 
+    /**
+     *
+     * @return
+     */
     public BankingSystem getBankingSystem() {
         return bankingSystem;
     }
 
-    public void setPaymentStrategy(PaymentStrategy paymentStrategy) {
+    /**
+     *
+     * @param paymentStrategy
+     */
+    public void setPaymentStrategy(final PaymentStrategy paymentStrategy) {
         this.paymentStrategy = paymentStrategy;
     }
 
+    /**
+     *
+     */
     public void makePayment() {
         if (paymentStrategy == null) {
             throw new IllegalStateException("Payment strategy is not set!");
