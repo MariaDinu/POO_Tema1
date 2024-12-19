@@ -19,7 +19,7 @@ public abstract class Card {
      *
      * @param statement
      */
-    public abstract void setHasPayed(boolean statement);
+    public abstract void setHasPayed(final boolean statement);
 
     /**
      *

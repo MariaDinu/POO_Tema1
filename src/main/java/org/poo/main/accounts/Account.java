@@ -3,7 +3,6 @@ package org.poo.main.accounts;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.fileio.CommandInput;
 import org.poo.main.cards.Card;
 import org.poo.utils.Utils;
 
@@ -19,7 +18,6 @@ public class Account {
     private double minBalance;
     private String alias;
     private String type;
-
     private ArrayNode transactionHistory;
 
     public static class Builder {
