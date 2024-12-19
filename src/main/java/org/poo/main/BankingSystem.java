@@ -109,9 +109,14 @@ public class BankingSystem {
                     break;
 
                 case "changeInterestRate":
+                    changeInterestRate(command, objectNode, output);
+                    break;
+
+                case "addInterest":
                     break;
 
                 case "splitPayment":
+                    splitPayment(command);
                     break;
 
                 case "report":
@@ -123,6 +128,32 @@ public class BankingSystem {
                 default:
             }
         }
+    }
+
+    /**
+     *
+     * @param command
+     * @param objectNode
+     * @param output
+     */
+    private void changeInterestRate(final CommandInput command, final ObjectNode objectNode,
+                                 final ArrayNode output) {
+        Account account = findAccount(command.getAccount());
+
+        if (account == null) {
+            System.out.println("NU S A GASIT ACCOUNT LA CHANGEINTERESTRATE");
+            return;
+        }
+
+        if (!account.getType().equals("savings")) {
+            buildJsonChangeInterestRateNotSavings(command, objectNode);
+            output.add(objectNode);
+        } else {
+            account.setInterestRate(command.getInterestRate());
+            User user = findUserOfAccount(account.getAccountIBAN());
+            user.addInterestRateChanged(command);
+        }
+
     }
 
     /**
@@ -200,6 +231,48 @@ public class BankingSystem {
      *
      * @param command
      */
+    private void splitPayment(final CommandInput command) {
+        double amount = command.getAmount() / command.getAccounts().size();
+        boolean canAllAccountsPay = true;
+        String accountCantPay = "";
+
+        for (String accountIBAN : command.getAccounts()) {
+            Account account = findAccount(accountIBAN);
+
+            double rate = getExchangeRate(command.getCurrency(), account.getCurrency());
+            double pay = amount * rate;
+
+            if (account.getBalance() < pay) {
+                canAllAccountsPay = false;
+                accountCantPay = account.getAccountIBAN();
+                break;
+            }
+        }
+
+        if (canAllAccountsPay) {
+            for (String accountIBAN : command.getAccounts()) {
+                Account account = findAccount(accountIBAN);
+
+                double rate = getExchangeRate(command.getCurrency(), account.getCurrency());
+                double pay = amount * rate;
+
+                account.setBalance(account.getBalance() - pay);
+
+                User user = findUserOfAccount(account.getAccountIBAN());
+                user.addSplitPaymentTransaction(command);
+            }
+        } else {
+            for (String accountIBAN : command.getAccounts()) {
+                User user = findUserOfAccount(accountIBAN);
+                user.addSplitPaymentError(command, command.getAccounts(), accountCantPay);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param command
+     */
     private void sendMoney(final CommandInput command) {
         //System.out.println(command.getAccount());
         //System.out.println(command.getReceiver());
@@ -240,11 +313,11 @@ public class BankingSystem {
             sender.setBalance(sender.getBalance() - command.getAmount());
             receiver.setBalance(receiver.getBalance() + pay);
 
-            if (receiver.getBalance() > receiver.getMinBalance() + 30) {
+            /*if (receiver.getBalance() > receiver.getMinBalance() + 30) {
                 for (Card card : receiver.getCards()) {
                     card.setWarning(false);
                 }
-            }
+            }*/
 
             //System.out.println(sender);
             //System.out.println(receiver);
@@ -567,6 +640,31 @@ public class BankingSystem {
         return null;
     }
 
+    /**
+     *
+     * @param command
+     * @param objectNode
+     */
+    private void buildJsonChangeInterestRateNotSavings(final CommandInput command,
+                                                       final ObjectNode objectNode) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        objectNode.put("command", command.getCommand());
+
+        ObjectNode outputArray = mapper.createObjectNode();
+        outputArray.put("timestamp", command.getTimestamp());
+        outputArray.put("description", "This is not a savings account");
+
+        objectNode.set("output", outputArray);
+
+        objectNode.put("timestamp", command.getTimestamp());
+    }
+
+    /**
+     *
+     * @param command
+     * @param objectNode
+     */
     private void buildJsonCardStatusNotFound(final CommandInput command,
                                              final ObjectNode objectNode) {
         ObjectMapper mapper = new ObjectMapper();

@@ -101,6 +101,77 @@ public class User {
      *
      * @param command
      */
+    public void addSplitPaymentTransaction(final CommandInput command) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newSplitPaymentNode = mapper.createObjectNode();
+        newSplitPaymentNode.put("timestamp", command.getTimestamp());
+
+        String formattedAmount = String.format("%.2f", command.getAmount());
+        newSplitPaymentNode.put("description", "Split payment of " + formattedAmount + " "
+                + command.getCurrency());
+        newSplitPaymentNode.put("currency", command.getCurrency());
+        newSplitPaymentNode.put("amount", command.getAmount() / command.getAccounts().size());
+
+        ArrayNode involvedAccounts = mapper.createArrayNode();
+        for (String account : command.getAccounts()) {
+            involvedAccounts.add(account);
+        }
+
+        newSplitPaymentNode.set("involvedAccounts", involvedAccounts);
+
+        transactionHistory.add(newSplitPaymentNode);
+    }
+
+    /**
+     * @param command
+     * @param accounts
+     * @param accountIBAN
+     */
+    public void addSplitPaymentError(final CommandInput command, final List<String> accounts,
+                                     final String accountIBAN) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newSplitPaymentNode = mapper.createObjectNode();
+        newSplitPaymentNode.put("timestamp", command.getTimestamp());
+
+        String formattedAmount = String.format("%.2f", command.getAmount());
+        newSplitPaymentNode.put("description", "Split payment of " + formattedAmount + " "
+                + command.getCurrency());
+        newSplitPaymentNode.put("currency", command.getCurrency());
+        newSplitPaymentNode.put("amount", command.getAmount() / command.getAccounts().size());
+
+        ArrayNode involvedAccounts = mapper.createArrayNode();
+        for (String account : command.getAccounts()) {
+            involvedAccounts.add(account);
+        }
+
+        newSplitPaymentNode.set("involvedAccounts", involvedAccounts);
+        newSplitPaymentNode.put("error", "Account " + accountIBAN
+                + " has insufficient funds for a split payment.");
+
+        transactionHistory.add(newSplitPaymentNode);
+    }
+
+    /**
+     *
+     * @param command
+     */
+    public void addInterestRateChanged(final CommandInput command) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode newInterestRateNode = mapper.createObjectNode();
+        newInterestRateNode.put("timestamp", command.getTimestamp());
+        newInterestRateNode.put("description", "Interest rate of the account changed to "
+                        + command.getInterestRate());
+
+        transactionHistory.add(newInterestRateNode);
+    }
+
+    /**
+     *
+     * @param command
+     */
     public void addSendMoneyInsufficientFunds(final CommandInput command) {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -116,7 +187,6 @@ public class User {
      * @param command
      */
     public void addCardIsFrozenCheck(final CommandInput command) {
-
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newFrozenCardNode = mapper.createObjectNode();
@@ -132,7 +202,6 @@ public class User {
      * @param command
      */
     public void addCardIsFrozen(final CommandInput command) {
-
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newFrozenCardNode = mapper.createObjectNode();
@@ -148,7 +217,6 @@ public class User {
      * @param pay
      */
     public void addPayOnlinePayment(final CommandInput command, final double pay) {
-
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode newPayOnlineNode = mapper.createObjectNode();

@@ -5,8 +5,11 @@ public class CurrencyConverter {
 
     private Map<String, List<ExchangeRate>> graph = new HashMap<>();
 
-    // Constructs the graph
-    public void constructGraph(List<ExchangeRate> exchangeRates) {
+    /**
+     *
+     * @param exchangeRates
+     */
+    public void constructGraph(final List<ExchangeRate> exchangeRates) {
         for (ExchangeRate rate : exchangeRates) {
             graph.putIfAbsent(rate.getFrom(), new ArrayList<>());
             graph.putIfAbsent(rate.getTo(), new ArrayList<>());
@@ -15,8 +18,14 @@ public class CurrencyConverter {
         }
     }
 
-    // Recursive method to find the conversion rate
-    public double getRate(String from, String to, Set<String> visited) {
+    /**
+     *
+     * @param from
+     * @param to
+     * @param visited
+     * @return
+     */
+    public double getRate(final String from, final String to, final Set<String> visited) {
         if (!graph.containsKey(from)) return 0; // If the currency doesn't exist in the graph
         if (from.equals(to)) return 1; // Base case: converting to the same currency
 
@@ -34,8 +43,13 @@ public class CurrencyConverter {
         return 0; // No path found
     }
 
-    // Public method to initiate the rate search
-    public double getRate(String from, String to) {
+    /**
+     *
+     * @param from
+     * @param to
+     * @return
+     */
+    public double getRate(final String from, final String to) {
         return getRate(from, to, new HashSet<>());
     }
 }
