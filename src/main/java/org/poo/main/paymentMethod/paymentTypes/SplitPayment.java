@@ -3,6 +3,7 @@ package org.poo.main.paymentMethod.paymentTypes;
 import org.poo.fileio.CommandInput;
 import org.poo.main.BankingSystem;
 import org.poo.main.User;
+import org.poo.main.UserHistoryTransactions;
 import org.poo.main.accounts.Account;
 import org.poo.main.paymentMethod.PaymentStrategy;
 
@@ -42,14 +43,18 @@ public class SplitPayment implements PaymentStrategy {
                 account.setBalance(account.getBalance() - pay);
 
                 User user = bankingSystem.findUserOfAccount(account.getAccountIBAN());
-                account.getTransactionHistory().add(user.addSplitPaymentTransaction(command));
+
+                UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
+                account.getTransactionHistory().add(userHistory.addSplitPaymentTransaction(command));
             }
         } else {
             for (String accountIBAN : command.getAccounts()) {
                 Account account = bankingSystem.findAccount(accountIBAN);
 
                 User user = bankingSystem.findUserOfAccount(accountIBAN);
-                account.getTransactionHistory().add(user.addSplitPaymentError(command, command.getAccounts(), accountCantPay));
+
+                UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
+                account.getTransactionHistory().add(userHistory.addSplitPaymentError(command, command.getAccounts(), accountCantPay));
             }
         }
     }

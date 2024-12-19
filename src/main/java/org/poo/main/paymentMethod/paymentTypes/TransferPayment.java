@@ -3,6 +3,7 @@ package org.poo.main.paymentMethod.paymentTypes;
 import org.poo.fileio.CommandInput;
 import org.poo.main.BankingSystem;
 import org.poo.main.User;
+import org.poo.main.UserHistoryTransactions;
 import org.poo.main.accounts.Account;
 import org.poo.main.paymentMethod.PaymentStrategy;
 
@@ -26,15 +27,21 @@ public class TransferPayment implements PaymentStrategy {
 
         if (sender.getBalance() < command.getAmount()) {
             User user = bankingSystem.findUserOfAccount(sender.getAccountIBAN());
-            sender.getTransactionHistory().add(user.addSendMoneyInsufficientFunds(command));
+
+            UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
+            sender.getTransactionHistory().add(userHistory.addSendMoneyInsufficientFunds(command));
         } else {
             sender.setBalance(sender.getBalance() - command.getAmount());
             receiver.setBalance(receiver.getBalance() + pay);
 
             User user = bankingSystem.findUserOfAccount(sender.getAccountIBAN());
-            sender.getTransactionHistory().add(user.addSendMoneyTransaction(command, sender, receiver));
+
+            UserHistoryTransactions userHistory = new UserHistoryTransactions(user);
+            sender.getTransactionHistory().add(userHistory.addSendMoneyTransaction(command, sender, receiver));
             user = bankingSystem.findUserOfAccount(receiver.getAccountIBAN());
-            receiver.getTransactionHistory().add(user.addReceiveMoneyTransaction(command, sender, receiver, receiverRate));
+
+            userHistory = new UserHistoryTransactions(user);
+            receiver.getTransactionHistory().add(userHistory.addReceiveMoneyTransaction(command, sender, receiver, receiverRate));
         }
     }
 }
