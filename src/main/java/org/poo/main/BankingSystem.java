@@ -8,6 +8,7 @@ import org.poo.fileio.CommandInput;
 import org.poo.fileio.ExchangeInput;
 import org.poo.fileio.UserInput;
 import org.poo.main.accounts.Account;
+import org.poo.main.accounts.accountFactory.AccountFactory;
 import org.poo.main.cards.Card;
 import org.poo.main.cards.cardFactory.CardFactory;
 import org.poo.main.paymentMethod.paymentTypes.OnlinePayment;
@@ -57,11 +58,7 @@ public class BankingSystem {
                     break;
 
                 case "addAccount":
-                    if (command.getAccountType().equals("classic")) {
-                        addClassicAccount(command);
-                    } else {
-                        addSavingsAccount(command);
-                    }
+                    addAccount(command);
                     break;
 
                 case "createCard":
@@ -172,7 +169,6 @@ public class BankingSystem {
         Account account = findAccount(command.getAccount());
 
         if (account == null) {
-            System.out.println("NU S A GASIT ACCOUNT LA CHANGEINTERESTRATE");
             return;
         }
 
@@ -354,13 +350,8 @@ public class BankingSystem {
      * @param command
      */
     public void setAlias(final CommandInput command) {
-        if (!findUser(command.getEmail()).equals(findUserOfAccount(command.getAccount()))) {
-            //PROPRIETARUL CONTULUI SI UTILIZATORUL NU SUNT ACEEASI
-            System.out.println("PROPRIETARUL CONTULUI SI UTILIZATORUL NU SUNT ACEEASI");
-        } else {
-            Account account = findAccount(command.getAccount());
-            account.setAlias(command.getAlias());
-        }
+        Account account = findAccount(command.getAccount());
+        account.setAlias(command.getAlias());
     }
 
     /**
@@ -533,34 +524,15 @@ public class BankingSystem {
      *
      * @param command
      */
-    public void addSavingsAccount(final CommandInput command) {
+    public void addAccount(final CommandInput command) {
         User user = findUser(command.getEmail());
 
         if (user == null) {
             System.out.println("Nu gasesc useru frate");
         } else {
-
-            Account account = new Account.Builder(command.getCurrency(), command.getAccountType())
-                    .setInterestRate(command.getInterestRate())
-                    .build();
-
-            user.getAccounts().add(account);
-            account.getTransactionHistory().add(user.addNewAccountTransaction(command));
-        }
-    }
-
-    /**
-     *
-     * @param command
-     */
-    public void addClassicAccount(final CommandInput command) {
-        User user = findUser(command.getEmail());
-
-        if (user == null) {
-            System.out.println("Nu gasesc useru frate");
-        } else {
-            Account account = new Account.Builder(command.getCurrency(), command.getAccountType())
-                    .build();
+            Account account = AccountFactory.createAccount(command.getAccountType(),
+                    command.getCurrency(),
+                    command.getInterestRate());
 
             user.getAccounts().add(account);
             account.getTransactionHistory().add(user.addNewAccountTransaction(command));

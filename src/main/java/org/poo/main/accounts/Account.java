@@ -9,96 +9,35 @@ import org.poo.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Account {
+public abstract class Account {
     private String currency;
-    private double interestRate;
+    //private double interestRate;
     private String accountIBAN;
     private double balance;
     private List<Card> cards;
     private double minBalance;
     private String alias;
-    private String type;
+    //private String type;
     private ArrayNode transactionHistory;
 
-    public static class Builder {
-        private String currency;
-        private double interestRate = 0;
-        private String accountIBAN;
-        private double balance;
-        private List<Card> cards;
-        private double minBalance = 0;
-        private String alias = "";
-        private String type;
-        private ArrayNode transactionHistory;
+    public Account(final String currency) {
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        public Builder(final String currency, final String type) {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            this.currency = currency;
-            accountIBAN = Utils.generateIBAN();
-            balance = 0;
-            cards = new ArrayList<>();
-            this.type = type;
-            transactionHistory = objectMapper.createArrayNode();
-        }
-
-        /**
-         *
-         * @param interestRate
-         * @return
-         */
-        public Builder setInterestRate(final double interestRate) {
-            this.interestRate = interestRate;
-            return this;
-        }
-
-        /**
-         *
-         * @param minBalance
-         * @return
-         */
-        public Builder setMinBalance(final double minBalance) {
-            this.minBalance = minBalance;
-            return this;
-        }
-
-        /**
-         *
-         * @param alias
-         * @return
-         */
-        public Builder setAlias(final String alias) {
-            this.alias = alias;
-            return this;
-        }
-
-        /**
-         *
-         * @return
-         */
-        public Account build() {
-            return new Account(this);
-        }
-    }
-
-    private Account(final Builder builder) {
-        this.currency = builder.currency;
-        this.interestRate = builder.interestRate;
-        this.accountIBAN = builder.accountIBAN;
-        this.balance = builder.balance;
-        this.cards = builder.cards;
-        this.minBalance = builder.minBalance;
-        this.alias = builder.alias;
-        this.type = builder.type;
-        this.transactionHistory = builder.transactionHistory;
+        this.currency = currency;
+        //this.interestRate = builder.interestRate;
+        accountIBAN = Utils.generateIBAN();
+        balance = 0;
+        cards = new ArrayList<>();
+        minBalance = 0;
+        alias = "";
+        //this.type = builder.type;
+        this.transactionHistory = objectMapper.createArrayNode();
     }
 
     /**
      *
      */
-    public void addInterest() {
-        balance += balance * interestRate;
-    }
+    public void addInterest() {}
 
     /**
      *
@@ -140,17 +79,13 @@ public class Account {
      *
      * @return
      */
-    public double getInterestRate() {
-        return interestRate;
-    }
+    public double getInterestRate() { return 0.0; }
 
     /**
      *
      * @param interestRate
      */
-    public void setInterestRate(final double interestRate) {
-        this.interestRate = interestRate;
-    }
+    public void setInterestRate(final double interestRate) { }
 
     /**
      *
@@ -236,17 +171,12 @@ public class Account {
      *
      * @return
      */
-    public String getType() {
-        return type;
-    }
+    public abstract String getType();
 
-    /**
-     *
-     * @param type
-     */
-    public void setType(final String type) {
-        this.type = type;
-    }
+
+    //public void setType(final String type) {
+    //    this.type = type;
+    //}
 
     /**
      *
@@ -262,35 +192,5 @@ public class Account {
      */
     public void setTransactionHistory(final ArrayNode transactionHistory) {
         this.transactionHistory = transactionHistory;
-    }
-
-    /**
-     *
-     * @return
-     */
-    @Override
-    public String toString() {
-        return "Account{"
-                + "currency='"
-                + currency
-                + '\''
-                + ", interestRate="
-                + interestRate
-                + ", accountIBAN='"
-                + accountIBAN
-                + '\''
-                + ", balance="
-                + balance
-                + ", cards="
-                + cards
-                + ", minBalance="
-                + minBalance
-                + ", alias='"
-                + alias
-                + '\''
-                + ", type='"
-                + type
-                + '\''
-                + '}';
     }
 }
